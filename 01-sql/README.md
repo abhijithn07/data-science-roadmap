@@ -2,7 +2,7 @@
 
 The first stop on the roadmap, and the most universally useful skill in data. **SQL** (Structured Query Language) is how you ask questions of stored data. Every data analyst, scientist, and engineer uses it.
 
-These notes cover SQL **end to end** — from "what is a database" to ACID, transactions, and window functions — broken into 10 focused notes you can work through in order.
+These notes cover SQL **end to end** — from "what is a database" to ACID, transactions, and window functions — broken into 11 focused notes you can work through in order.
 
 → Back to [Roadmap Home](../README.md) · [Overview](../00-overview/README.md)
 
@@ -47,9 +47,9 @@ For **practice problems** (essential for interview prep): [HackerRank SQL](https
 | 01 | [Basics](./notes/01-basics.md) | What SQL is, DBMS vs RDBMS, tables, schemas, syntax, data types, NULL, aliases, operators | ✅ |
 | 02 | [SELECT & Filter](./notes/02-select-and-filter.md) | `SELECT`, `DISTINCT`, `WHERE`, `ORDER BY`, `LIMIT`, `LIKE`, wildcards, `IN`, `BETWEEN`, `IS NULL` | ✅ |
 | 03 | [Aggregation & CASE](./notes/03-aggregation-and-case.md) | Aggregate functions, `GROUP BY`, `HAVING`, `CASE` expressions | ✅ |
-| 04 | Subqueries | Subqueries, correlated subqueries, `EXISTS`, `ANY`/`ALL`, derived tables, `CREATE TABLE AS` | ⬜ |
-| 05 | CTEs & Window Functions | `WITH`, recursive CTEs, window functions, ranking, `LAG`/`LEAD`, window frames | ⬜ |
-| 06 | PIVOT & Set Operations | `PIVOT`/`UNPIVOT`, `UNION`, `INTERSECT`, `EXCEPT` | ⬜ |
+| 04 | [Subqueries](./notes/04-subqueries.md) | Subqueries, correlated subqueries, `EXISTS`, `ANY`/`ALL`, derived tables, `CREATE TABLE AS` | ✅ |
+| 05 | [CTEs & Window Functions](./notes/05-ctes-and-window-functions.md) | `WITH`, recursive CTEs, window functions, ranking, `LAG`/`LEAD`, window frames | ✅ |
+| 06 | [PIVOT & Set Operations](./notes/06-pivot-and-set-operations.md) | `PIVOT`/`UNPIVOT`, `UNION`, `INTERSECT`, `EXCEPT` | ✅ |
 | 07 | DML | `INSERT`, `INSERT INTO SELECT`, `UPDATE`, `DELETE` | ⬜ |
 | 08 | DDL | `CREATE`/`ALTER`/`DROP`, constraints, indexes, views, schemas, temporary tables | ⬜ |
 | 09 | Joins | `INNER`, `LEFT`, `RIGHT`, `FULL OUTER`, `CROSS`, `SELF`, multi-table, many-to-many | ⬜ |
@@ -86,11 +86,11 @@ All notes use the same two tables so the examples build up consistently:
 
 ## Progress
 
-- [ ] Read notes 01–03 (this batch)
+- [x] Read notes 01–06 (Batches 1 + 2 — full DQL chapter complete)
 - [ ] Run every example yourself in DB Fiddle or your local database
 - [ ] Do the Quick Self-Check questions at the end of each note
 - [ ] Solve 10 SQL problems on HackerRank or LeetCode
-- [ ] Continue with notes 04–11 in subsequent batches
+- [ ] Continue with notes 07–11 in subsequent batches (DML, DDL, Joins, Functions, DCL/TCL)
 - [ ] Push notes and any practice queries to GitHub
 
 ---
