@@ -50,8 +50,8 @@ For **practice problems** (essential for interview prep): [HackerRank SQL](https
 | 04 | [Subqueries](./notes/04-subqueries.md) | Subqueries, correlated subqueries, `EXISTS`, `ANY`/`ALL`, derived tables, `CREATE TABLE AS` | ✅ |
 | 05 | [CTEs & Window Functions](./notes/05-ctes-and-window-functions.md) | `WITH`, recursive CTEs, window functions, ranking, `LAG`/`LEAD`, window frames | ✅ |
 | 06 | [PIVOT & Set Operations](./notes/06-pivot-and-set-operations.md) | `PIVOT`/`UNPIVOT`, `UNION`, `INTERSECT`, `EXCEPT` | ✅ |
-| 07 | DML | `INSERT`, `INSERT INTO SELECT`, `UPDATE`, `DELETE` | ⬜ |
-| 08 | DDL | `CREATE`/`ALTER`/`DROP`, constraints, indexes, views, schemas, temporary tables | ⬜ |
+| 07 | [DML](./notes/07-dml.md) | `INSERT`, `INSERT INTO SELECT`, `UPDATE`, `DELETE` | ✅ |
+| 08 | [DDL](./notes/08-ddl.md) | `CREATE`/`ALTER`/`DROP`, constraints, indexes, views, schemas, temporary tables | ✅ |
 | 09 | Joins | `INNER`, `LEFT`, `RIGHT`, `FULL OUTER`, `CROSS`, `SELF`, multi-table, many-to-many | ⬜ |
 | 10 | Functions & Programming | String/numeric/date functions, `CAST`, `COALESCE`, regex, UDFs, stored procedures | ⬜ |
 | 11 | DCL & TCL | `GRANT`/`REVOKE`, `COMMIT`/`ROLLBACK`, `SAVEPOINT`, ACID, isolation levels, locks, MVCC | ⬜ |
@@ -86,11 +86,11 @@ All notes use the same two tables so the examples build up consistently:
 
 ## Progress
 
-- [x] Read notes 01–06 (Batches 1 + 2 — full DQL chapter complete)
+- [x] Read notes 01–08 (Batches 1 + 2 + 3 — DQL chapter + DML + DDL complete)
 - [ ] Run every example yourself in DB Fiddle or your local database
 - [ ] Do the Quick Self-Check questions at the end of each note
 - [ ] Solve 10 SQL problems on HackerRank or LeetCode
-- [ ] Continue with notes 07–11 in subsequent batches (DML, DDL, Joins, Functions, DCL/TCL)
+- [ ] Continue with notes 09–11 in Batch 4 (Joins, Functions & Programming, DCL/TCL)
 - [ ] Push notes and any practice queries to GitHub
 
 ---
