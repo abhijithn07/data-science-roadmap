@@ -1,4 +1,4 @@
-# Note 11 — DCL & TCL — Permissions, Transactions, Concurrency
+# Note 11 - DCL & TCL - Permissions, Transactions, Concurrency
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -6,15 +6,15 @@
 
 ## What You'll Learn Here
 
-The two remaining categories — and the most "production-grade" topics in SQL:
+The two remaining categories - and the most "production-grade" topics in SQL:
 
-**DCL — Data Control Language (permissions):**
+**DCL - Data Control Language (permissions):**
 
 1. **`GRANT`**
 2. **`REVOKE`**
 3. **Roles and privileges**
 
-**TCL — Transaction Control Language:**
+**TCL - Transaction Control Language:**
 
 4. **`COMMIT`**
 5. **`ROLLBACK`**
@@ -25,13 +25,13 @@ The two remaining categories — and the most "production-grade" topics in SQL:
 10. **Deadlocks**
 11. **Concurrency control / MVCC**
 
-These topics rarely show up in a beginner's day-to-day SQL — but they're **essential for any production work**, and they come up *constantly* in technical interviews.
+These topics rarely show up in a beginner's day-to-day SQL - but they're **essential for any production work**, and they come up *constantly* in technical interviews.
 
 ---
 
-# Part 1 — DCL (Permissions)
+# Part 1 - DCL (Permissions)
 
-## 1. GRANT — Giving Permission
+## 1. GRANT - Giving Permission
 
 `GRANT` gives a user (or role) the right to do something. The shape:
 
@@ -68,7 +68,7 @@ GRANT ALL PRIVILEGES ON employees TO alice;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO read_only_users;
 ```
 
-### Grant Option — passing the power on
+### Grant Option - passing the power on
 
 ```sql
 GRANT SELECT ON employees TO bob WITH GRANT OPTION;
@@ -77,7 +77,7 @@ GRANT SELECT ON employees TO bob WITH GRANT OPTION;
 
 ---
 
-## 2. REVOKE — Taking Permission Away
+## 2. REVOKE - Taking Permission Away
 
 The mirror image of `GRANT`:
 
@@ -87,7 +87,7 @@ REVOKE SELECT ON employees FROM bob;
 REVOKE ALL PRIVILEGES ON employees FROM alice;
 ```
 
-If the user was given `WITH GRANT OPTION` and granted to others, you may also revoke from those downstream users — use `CASCADE`:
+If the user was given `WITH GRANT OPTION` and granted to others, you may also revoke from those downstream users - use `CASCADE`:
 
 ```sql
 REVOKE SELECT ON employees FROM bob CASCADE;
@@ -97,7 +97,7 @@ REVOKE SELECT ON employees FROM bob CASCADE;
 
 ## 3. Roles and Privileges
 
-A **role** is a *named bundle of permissions* you assign to one or many users. Roles make permission management scalable — instead of granting privileges to each user individually, you define roles and assign users to them.
+A **role** is a *named bundle of permissions* you assign to one or many users. Roles make permission management scalable - instead of granting privileges to each user individually, you define roles and assign users to them.
 
 ### Creating roles
 
@@ -112,18 +112,18 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO analyst;
 GRANT analyst TO bob, alice, carol;
 ```
 
-Now Bob, Alice, and Carol all have read access — and if you want to add another permission to the role, you just `GRANT` it to `analyst` once. All three (and any future role members) inherit it.
+Now Bob, Alice, and Carol all have read access - and if you want to add another permission to the role, you just `GRANT` it to `analyst` once. All three (and any future role members) inherit it.
 
-### Privileges vs. Roles — the difference
+### Privileges vs. Roles - the difference
 
 - **Privilege** = a specific permission (e.g., `SELECT` on a specific table).
 - **Role** = a named group of privileges (and possibly other roles).
 
-Most production databases use roles for everything — direct user grants are rare.
+Most production databases use roles for everything - direct user grants are rare.
 
 ---
 
-# Part 2 — TCL (Transactions)
+# Part 2 - TCL (Transactions)
 
 ## What Is a Transaction?
 
@@ -142,7 +142,7 @@ If the second `UPDATE` fails (e.g., account 2 doesn't exist), you don't want the
 
 ---
 
-## 4. COMMIT — Save the Changes
+## 4. COMMIT - Save the Changes
 
 `COMMIT` finalizes a transaction. Everything you did since `BEGIN` (or `START TRANSACTION`) becomes permanent and visible to other users.
 
@@ -153,13 +153,13 @@ BEGIN;
 COMMIT;
 ```
 
-After `COMMIT`, the row exists with salary 90000 — and there's no going back.
+After `COMMIT`, the row exists with salary 90000 - and there's no going back.
 
-> Many database tools (like psql, the MySQL CLI) **auto-commit** by default — each statement is its own transaction. To group statements, you have to start a transaction explicitly with `BEGIN`.
+> Many database tools (like psql, the MySQL CLI) **auto-commit** by default - each statement is its own transaction. To group statements, you have to start a transaction explicitly with `BEGIN`.
 
 ---
 
-## 5. ROLLBACK — Throw the Changes Away
+## 5. ROLLBACK - Throw the Changes Away
 
 `ROLLBACK` undoes everything done since the transaction began.
 
@@ -184,11 +184,11 @@ COMMIT;
 ROLLBACK;
 ```
 
-This is how careful operators run risky `DELETE`s in production — start a transaction, do the change, verify it, commit or rollback.
+This is how careful operators run risky `DELETE`s in production - start a transaction, do the change, verify it, commit or rollback.
 
 ---
 
-## 6. SAVEPOINT — Partial Rollback
+## 6. SAVEPOINT - Partial Rollback
 
 A **savepoint** marks an intermediate point inside a transaction. You can roll back to a savepoint without rolling back the whole transaction.
 
@@ -216,10 +216,10 @@ Transactions guarantee four properties, captured in the acronym **ACID**:
 
 | Letter | Property | What it means |
 |--------|----------|---------------|
-| **A** | **Atomicity** | All or nothing — every statement in the transaction succeeds, or none of them take effect |
-| **C** | **Consistency** | The database goes from one valid state to another — constraints are never violated |
+| **A** | **Atomicity** | All or nothing - every statement in the transaction succeeds, or none of them take effect |
+| **C** | **Consistency** | The database goes from one valid state to another - constraints are never violated |
 | **I** | **Isolation** | Concurrent transactions don't interfere with each other |
-| **D** | **Durability** | Once committed, the change survives crashes — it's written to disk |
+| **D** | **Durability** | Once committed, the change survives crashes - it's written to disk |
 
 ACID is what makes relational databases *trustworthy* for important data. It's the main reason SQL databases dominate financial, healthcare, and other critical systems.
 
@@ -233,16 +233,16 @@ The four standard isolation levels, from **least isolated** (most concurrency, m
 
 | Level | Allows... |
 |-------|-----------|
-| **`READ UNCOMMITTED`** | Dirty reads — seeing changes another transaction hasn't committed yet |
-| **`READ COMMITTED`** | Non-repeatable reads — re-reading the same row may show different values |
-| **`REPEATABLE READ`** | Phantom reads — re-running the same query may return different rows |
-| **`SERIALIZABLE`** | Nothing — transactions appear to run one after another |
+| **`READ UNCOMMITTED`** | Dirty reads - seeing changes another transaction hasn't committed yet |
+| **`READ COMMITTED`** | Non-repeatable reads - re-reading the same row may show different values |
+| **`REPEATABLE READ`** | Phantom reads - re-running the same query may return different rows |
+| **`SERIALIZABLE`** | Nothing - transactions appear to run one after another |
 
 ### The Anomalies
 
-- **Dirty read** — reading uncommitted (possibly rolled-back) data from another transaction.
-- **Non-repeatable read** — same `SELECT` returns different *values* for an existing row, because another transaction committed an update mid-flight.
-- **Phantom read** — same `SELECT` returns different *rows* (new ones appearing, old ones disappearing), because another transaction inserted or deleted.
+- **Dirty read** - reading uncommitted (possibly rolled-back) data from another transaction.
+- **Non-repeatable read** - same `SELECT` returns different *values* for an existing row, because another transaction committed an update mid-flight.
+- **Phantom read** - same `SELECT` returns different *rows* (new ones appearing, old ones disappearing), because another transaction inserted or deleted.
 
 ### Setting the Isolation Level
 
@@ -262,7 +262,7 @@ COMMIT;
 | SQL Server | `READ COMMITTED` |
 | Oracle | `READ COMMITTED` |
 
-**`READ COMMITTED` is the practical default** for most applications — a good balance of safety and performance.
+**`READ COMMITTED` is the practical default** for most applications - a good balance of safety and performance.
 
 ---
 
@@ -277,7 +277,7 @@ Databases use **locks** to prevent concurrent transactions from corrupting data.
 | **Shared lock** | Multiple transactions can read; none can write |
 | **Exclusive lock** | One transaction has full access; others wait |
 | **Row-level lock** | Locks a single row |
-| **Table-level lock** | Locks an entire table — coarser and slower |
+| **Table-level lock** | Locks an entire table - coarser and slower |
 
 ### Blocking
 
@@ -287,26 +287,26 @@ Databases use **locks** to prevent concurrent transactions from corrupting data.
 -- Session 1:
 BEGIN;
 UPDATE employees SET salary = 100000 WHERE id = 1;
--- (No COMMIT yet — keeps the lock)
+-- (No COMMIT yet - keeps the lock)
 
 -- Session 2:
 UPDATE employees SET salary = 110000 WHERE id = 1;
 -- This is BLOCKED, waiting on Session 1 to commit or rollback.
 ```
 
-Blocking is normal — it's what protects data integrity. But long-held locks cause performance problems.
+Blocking is normal - it's what protects data integrity. But long-held locks cause performance problems.
 
 ### Tips to Reduce Blocking
 
 - **Keep transactions short.** Open transactions hold locks.
-- **Touch rows in a consistent order** (helps avoid deadlocks too — next section).
-- **Avoid unnecessary table scans** inside transactions — locks may be acquired on more rows than expected.
+- **Touch rows in a consistent order** (helps avoid deadlocks too - next section).
+- **Avoid unnecessary table scans** inside transactions - locks may be acquired on more rows than expected.
 
 ---
 
 ## 10. Deadlocks
 
-A **deadlock** is the worst-case version of blocking: two transactions are each holding a lock the other needs. Neither can proceed. They'd wait forever — so the database **detects deadlocks and kills one of them** (with an error like *"deadlock detected"*).
+A **deadlock** is the worst-case version of blocking: two transactions are each holding a lock the other needs. Neither can proceed. They'd wait forever - so the database **detects deadlocks and kills one of them** (with an error like *"deadlock detected"*).
 
 ### Classic example
 
@@ -329,8 +329,8 @@ Both are waiting on each other's locks. **Deadlock.** The database kills one tra
 ### Preventing Deadlocks
 
 - **Touch rows in a consistent order** across transactions. (If both A and B always update id 1 before id 2, no deadlock.)
-- **Keep transactions short** — fewer locks held, less chance of conflict.
-- **Use lower isolation levels** where appropriate — fewer locks.
+- **Keep transactions short** - fewer locks held, less chance of conflict.
+- **Use lower isolation levels** where appropriate - fewer locks.
 
 ### Handling a Deadlock
 
@@ -350,9 +350,9 @@ Instead of locking a row while it's being modified, the database **keeps multipl
 
 ### Trade-offs
 
-- **More storage** — old row versions stick around until cleaned up.
+- **More storage** - old row versions stick around until cleaned up.
 - **Vacuum / cleanup processes** are needed to remove obsolete versions (PostgreSQL's `VACUUM`, for example).
-- **Snapshot isolation** is achieved naturally — each transaction sees a consistent snapshot of the database.
+- **Snapshot isolation** is achieved naturally - each transaction sees a consistent snapshot of the database.
 
 ### What This Means for You
 
@@ -360,9 +360,9 @@ In day-to-day SQL, MVCC mostly "just works." You'll meet it when:
 - You're tuning a database that's growing larger than expected (look at vacuum settings).
 - You're debugging a long-running query and wondering why it doesn't see recent changes (it sees the snapshot from when it started).
 
-### Older Approach — Lock-Based Concurrency
+### Older Approach - Lock-Based Concurrency
 
-Older or simpler databases (some SQL Server modes, older MySQL engines) use **lock-based** concurrency instead — read locks, write locks, and lots of blocking. MVCC was a big leap forward in concurrency.
+Older or simpler databases (some SQL Server modes, older MySQL engines) use **lock-based** concurrency instead - read locks, write locks, and lots of blocking. MVCC was a big leap forward in concurrency.
 
 ---
 
@@ -377,7 +377,7 @@ BEGIN;
     SELECT balance FROM accounts WHERE id IN (1, 2) FOR UPDATE;
 
     -- 2. Check the source has enough funds
-    --    (raise error if not — would trigger ROLLBACK)
+    --    (raise error if not - would trigger ROLLBACK)
 
     -- 3. Make the transfer
     UPDATE accounts SET balance = balance - 100 WHERE id = 1;
@@ -392,7 +392,7 @@ BEGIN;
 COMMIT;
 ```
 
-This combines: a transaction, a savepoint, a `FOR UPDATE` lock to prevent races, and a controlled commit point. The transaction is ACID — the transfer is **atomic** (both updates or neither), **consistent** (no row leaves the database in an invalid state), **isolated** from concurrent transactions, and **durable** once committed.
+This combines: a transaction, a savepoint, a `FOR UPDATE` lock to prevent races, and a controlled commit point. The transaction is ACID - the transfer is **atomic** (both updates or neither), **consistent** (no row leaves the database in an invalid state), **isolated** from concurrent transactions, and **durable** once committed.
 
 ---
 
@@ -401,10 +401,10 @@ This combines: a transaction, a savepoint, a `FOR UPDATE` lock to prevent races,
 - **DCL** manages **permissions**: `GRANT` and `REVOKE`, organized into **roles** that bundle privileges for groups of users.
 - **TCL** manages **transactions**: a transaction is a unit of work that's all-or-nothing.
 - **`COMMIT`** finalizes; **`ROLLBACK`** undoes everything since `BEGIN`. **`SAVEPOINT`** lets you partial-rollback inside a transaction.
-- **ACID** = Atomicity, Consistency, Isolation, Durability — the guarantees relational databases provide.
+- **ACID** = Atomicity, Consistency, Isolation, Durability - the guarantees relational databases provide.
 - **Isolation levels** trade safety for concurrency: `READ UNCOMMITTED` < `READ COMMITTED` < `REPEATABLE READ` < `SERIALIZABLE`. **`READ COMMITTED`** is the practical default.
-- **Locks** prevent concurrent corruption. **Blocking** is when one transaction waits on another's locks. **Deadlocks** are two transactions waiting on each other — the database breaks the tie by killing one.
-- **MVCC** (Multi-Version Concurrency Control) is how modern databases let readers and writers work simultaneously without blocking each other — by keeping multiple row versions.
+- **Locks** prevent concurrent corruption. **Blocking** is when one transaction waits on another's locks. **Deadlocks** are two transactions waiting on each other - the database breaks the tie by killing one.
+- **MVCC** (Multi-Version Concurrency Control) is how modern databases let readers and writers work simultaneously without blocking each other - by keeping multiple row versions.
 
 ## Quick Self-Check
 
