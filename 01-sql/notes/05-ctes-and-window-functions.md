@@ -1,4 +1,4 @@
-# Note 05 — CTEs & Window Functions
+# Note 05 - CTEs & Window Functions
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -6,14 +6,14 @@
 
 ## What You'll Learn Here
 
-The most powerful tools in the DQL toolkit — used heavily in real data jobs and interviews:
+The most powerful tools in the DQL toolkit - used heavily in real data jobs and interviews:
 
-1. **Common Table Expressions (CTEs)** — `WITH` clause for readable, layered queries
-2. **Recursive CTEs** — for hierarchies and generated sequences
-3. **Window functions** — calculate across rows without collapsing them
-4. **Ranking functions** — `ROW_NUMBER`, `RANK`, `DENSE_RANK`
-5. **Analytic functions** — `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`
-6. **Window frames** — controlling exactly which rows a window function sees, for running totals and moving averages
+1. **Common Table Expressions (CTEs)** - `WITH` clause for readable, layered queries
+2. **Recursive CTEs** - for hierarchies and generated sequences
+3. **Window functions** - calculate across rows without collapsing them
+4. **Ranking functions** - `ROW_NUMBER`, `RANK`, `DENSE_RANK`
+5. **Analytic functions** - `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`
+6. **Window frames** - controlling exactly which rows a window function sees, for running totals and moving averages
 
 All examples use the [`employees` and `departments` tables](./01-basics.md#the-working-example--setup-sql).
 
@@ -23,7 +23,7 @@ All examples use the [`employees` and `departments` tables](./01-basics.md#the-w
 
 A **CTE** is a *named, temporary result set* you define at the top of a query, then reference like a table. The keyword is `WITH`.
 
-CTEs solve the readability problem that subqueries and derived tables create — instead of nesting queries inside queries, you stack them top-to-bottom in natural reading order.
+CTEs solve the readability problem that subqueries and derived tables create - instead of nesting queries inside queries, you stack them top-to-bottom in natural reading order.
 
 ### Basic Syntax
 
@@ -40,10 +40,10 @@ WHERE e.salary > d.avg_salary;
 ```
 
 What's happening:
-1. The `WITH` clause defines `dept_avg` — a temporary result set with each department's average salary.
+1. The `WITH` clause defines `dept_avg` - a temporary result set with each department's average salary.
 2. The main `SELECT` uses `dept_avg` exactly like a real table.
 
-Result — employees earning above their department's average:
+Result - employees earning above their department's average:
 
 | name | salary | avg_salary |
 |------|--------|-----------|
@@ -75,7 +75,7 @@ This reads top-down like a recipe: *"first compute high earners, then filter to 
 |--|-----|---------------|
 | Defined | Top of query (`WITH ... AS`) | Inside `FROM (...)` |
 | Readability | Better for complex queries | OK for simple ones |
-| Reusable in same query | Yes — reference it multiple times | No — duplicate it |
+| Reusable in same query | Yes - reference it multiple times | No - duplicate it |
 | Recursive | Yes (with `RECURSIVE`) | No |
 
 **Rule of thumb:** prefer CTEs for anything beyond a one-off, simple derived table.
@@ -84,7 +84,7 @@ This reads top-down like a recipe: *"first compute high earners, then filter to 
 
 ## 2. Recursive CTEs
 
-A **recursive CTE** can reference itself — it's how SQL handles **hierarchical data** (org charts, file trees, bill-of-materials) and **generated sequences**.
+A **recursive CTE** can reference itself - it's how SQL handles **hierarchical data** (org charts, file trees, bill-of-materials) and **generated sequences**.
 
 The shape:
 
@@ -99,7 +99,7 @@ WITH RECURSIVE cte_name AS (
 SELECT * FROM cte_name;
 ```
 
-### Example — Generate a Sequence of Numbers
+### Example - Generate a Sequence of Numbers
 
 ```sql
 WITH RECURSIVE numbers(n) AS (
@@ -112,7 +112,7 @@ SELECT n FROM numbers;
 
 Result: 1, 2, 3, 4, 5.
 
-### Example — Traverse a Hierarchy
+### Example - Traverse a Hierarchy
 
 If `employees` had a `manager_id` column (pointing to another employee's `id`), a recursive CTE could walk the org chart:
 
@@ -139,9 +139,9 @@ Each iteration finds one more level of the hierarchy until no new rows are added
 
 ---
 
-## 3. Window Functions — The Big Idea
+## 3. Window Functions - The Big Idea
 
-**Window functions** are SQL's secret weapon. They compute values *across rows* — like aggregates — but **without collapsing the rows**. You keep every row of the original result, just with extra calculated columns.
+**Window functions** are SQL's secret weapon. They compute values *across rows* - like aggregates - but **without collapsing the rows**. You keep every row of the original result, just with extra calculated columns.
 
 The trigger is the **`OVER()`** clause. Whenever you see `OVER`, it's a window function.
 
@@ -164,9 +164,9 @@ The window version returns:
 | Bob Patel | 110000 | 84375 |
 | ... | ... | 84375 |
 
-Every row shows its own data *and* the overall average — useful for comparisons.
+Every row shows its own data *and* the overall average - useful for comparisons.
 
-### PARTITION BY — Per-Group Windows
+### PARTITION BY - Per-Group Windows
 
 Want the average *per department* on each row? Add `PARTITION BY`:
 
@@ -186,7 +186,7 @@ Now `dept_avg` shows each employee's department average:
 | Carlos Reyes | 75000 | 2 | 77500.00 |
 | ... | ... | ... | ... |
 
-This is hugely useful — you can compare each row to its group's stats in the same query, without a self-join.
+This is hugely useful - you can compare each row to its group's stats in the same query, without a self-join.
 
 ### ORDER BY in OVER
 
@@ -208,11 +208,11 @@ Three functions assign a **rank** to rows. The differences only matter when ther
 
 | Function | What it does on ties |
 |----------|---------------------|
-| **`ROW_NUMBER()`** | Always gives unique numbers (1, 2, 3, 4, …) — arbitrary tiebreak |
+| **`ROW_NUMBER()`** | Always gives unique numbers (1, 2, 3, 4, …) - arbitrary tiebreak |
 | **`RANK()`** | Ties get the same rank; the next rank **skips** (1, 2, 2, 4) |
 | **`DENSE_RANK()`** | Ties get the same rank; the next rank **does not skip** (1, 2, 2, 3) |
 
-### Example — Ranking by Salary
+### Example - Ranking by Salary
 
 ```sql
 SELECT name, salary,
@@ -222,7 +222,7 @@ SELECT name, salary,
 FROM employees;
 ```
 
-In our data, all salaries are unique, so all three return 1, 2, 3, ..., 8 — identical. To see the difference, imagine Carlos earned `80000` (a tie with Grace):
+In our data, all salaries are unique, so all three return 1, 2, 3, ..., 8 - identical. To see the difference, imagine Carlos earned `80000` (a tie with Grace):
 
 | name | salary | ROW_NUMBER | RANK | DENSE_RANK |
 |------|--------|-----------|------|------------|
@@ -240,7 +240,7 @@ Notice on the tie:
 - `RANK` ties (5, 5) then skips to 7.
 - `DENSE_RANK` ties (5, 5) then continues to 6.
 
-### PARTITION BY in Ranking — "Top N per group"
+### PARTITION BY in Ranking - "Top N per group"
 
 The classic interview question: *"Find the top-paid employee in each department."*
 
@@ -257,7 +257,7 @@ FROM (
 WHERE rn = 1;
 ```
 
-Result — each department's top earner:
+Result - each department's top earner:
 
 | name | salary | department_id |
 |------|--------|---------------|
@@ -270,7 +270,7 @@ Result — each department's top earner:
 
 ---
 
-## 5. Analytic Functions — LAG / LEAD / FIRST_VALUE / LAST_VALUE
+## 5. Analytic Functions - LAG / LEAD / FIRST_VALUE / LAST_VALUE
 
 These let a row "peek" at other rows in the window.
 
@@ -281,7 +281,7 @@ These let a row "peek" at other rows in the window.
 | **`FIRST_VALUE(col)`** | The **first** row's `col` in the window |
 | **`LAST_VALUE(col)`** | The **last** row's `col` in the window |
 
-### Example — LAG for Differences over Time
+### Example - LAG for Differences over Time
 
 > *"For each employee in hire order, show the previous person's hire date."*
 
@@ -328,13 +328,13 @@ Each row gets the name of the highest earner in its department.
 
 ---
 
-## 6. Window Frames — Running Totals and Moving Averages
+## 6. Window Frames - Running Totals and Moving Averages
 
 By default, when you `ORDER BY` inside `OVER`, the **window frame** for each row is *all rows from the start up to the current row*. This is what enables **running totals**.
 
 The default can be made explicit: `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. You can change it.
 
-### Example — Running Total
+### Example - Running Total
 
 > *"For each employee in hire order, show a running total of salaries."*
 
@@ -377,7 +377,7 @@ ROWS BETWEEN <start> AND <end>
 | `N FOLLOWING` | The N rows after this one |
 | `UNBOUNDED FOLLOWING` | All rows after this one |
 
-### Example — 3-Row Moving Average
+### Example - 3-Row Moving Average
 
 ```sql
 SELECT name, hire_date, salary,
@@ -388,12 +388,12 @@ SELECT name, hire_date, salary,
 FROM employees;
 ```
 
-Each row's moving average is computed from itself and one row on either side — useful for smoothing time-series data.
+Each row's moving average is computed from itself and one row on either side - useful for smoothing time-series data.
 
 ### ROWS vs. RANGE
 
-- `ROWS` — frames based on **physical row positions**.
-- `RANGE` — frames based on **logical value ranges** of the ORDER BY column.
+- `ROWS` - frames based on **physical row positions**.
+- `RANGE` - frames based on **logical value ranges** of the ORDER BY column.
 
 `ROWS` is what you want 95% of the time. `RANGE` matters when there are ties in the ORDER BY column and you want them treated as one group.
 
@@ -433,13 +433,13 @@ ORDER BY department_id, rnk;
 | Diana Kim | 3 | 88000 | 2 | 180000 |
 | Fatima Ali | 4 | 65000 | 1 | 65000 |
 
-This combines a CTE, ranking, and running totals — three of the most useful patterns in advanced SQL.
+This combines a CTE, ranking, and running totals - three of the most useful patterns in advanced SQL.
 
 ---
 
 ## Key Takeaways
 
-- A **CTE** (`WITH cte_name AS (...)`) is a named temporary result set defined at the top of a query — much more readable than nested subqueries.
+- A **CTE** (`WITH cte_name AS (...)`) is a named temporary result set defined at the top of a query - much more readable than nested subqueries.
 - **Recursive CTEs** handle hierarchies and generated sequences (base case + recursive step).
 - **Window functions** compute across rows *without collapsing them*. The trigger is `OVER(...)`.
 - **`PARTITION BY`** = "group within the window"; **`ORDER BY`** inside `OVER` = "order within the window."

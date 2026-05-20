@@ -1,4 +1,4 @@
-# Note 03 — Aggregation & CASE
+# Note 03 - Aggregation & CASE
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -8,12 +8,12 @@
 
 Four powerful tools that turn raw rows into summaries and conditional results:
 
-1. **Aggregate functions** — `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
-2. **`GROUP BY`** — one summary per category
-3. **`HAVING`** — filtering the groups themselves
-4. **`CASE` expressions** — `if/else` logic inside a query
+1. **Aggregate functions** - `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
+2. **`GROUP BY`** - one summary per category
+3. **`HAVING`** - filtering the groups themselves
+4. **`CASE` expressions** - `if/else` logic inside a query
 
-Plus: **the logical order of execution** of a SELECT statement — one of the most important things to internalize about SQL.
+Plus: **the logical order of execution** of a SELECT statement - one of the most important things to internalize about SQL.
 
 All examples use the [`employees` and `departments` tables](./01-basics.md#the-working-example--setup-sql).
 
@@ -21,7 +21,7 @@ All examples use the [`employees` and `departments` tables](./01-basics.md#the-w
 
 ## 1. Aggregate Functions
 
-So far, every query returned **individual rows**. **Aggregate functions** are the opposite — they **collapse many rows into a single summary value**.
+So far, every query returned **individual rows**. **Aggregate functions** are the opposite - they **collapse many rows into a single summary value**.
 
 - "How many employees do we have?" → one number.
 - "What's the average salary?" → one number.
@@ -61,7 +61,7 @@ SELECT SUM(salary) FROM employees;
 -- → 675000
 ```
 
-### COUNT — The Three Flavors
+### COUNT - The Three Flavors
 
 `COUNT` has three forms worth knowing:
 
@@ -84,7 +84,7 @@ FROM employees;
 
 ### Aggregates Ignore NULL
 
-All aggregates except `COUNT(*)` **ignore `NULL` values**. This is usually what you want — the average of `[100, 200, NULL]` is `150`, not `100` — but be aware of it.
+All aggregates except `COUNT(*)` **ignore `NULL` values**. This is usually what you want - the average of `[100, 200, NULL]` is `150`, not `100` - but be aware of it.
 
 ### Renaming the Result with AS
 
@@ -151,7 +151,7 @@ This returns one row for each unique *combination* of city and department.
 
 > **Every column in the `SELECT` list must either appear in the `GROUP BY` clause, or be inside an aggregate function.**
 
-**Why?** If you `GROUP BY department_id`, each group can have many different `name`s. The database doesn't know *which* name to display — it only knows how to *aggregate* (count them, get the max, etc.). So it errors out.
+**Why?** If you `GROUP BY department_id`, each group can have many different `name`s. The database doesn't know *which* name to display - it only knows how to *aggregate* (count them, get the max, etc.). So it errors out.
 
 ```sql
 -- ❌ This fails:
@@ -192,7 +192,7 @@ HAVING AVG(salary) > 80000;
 | 1 | 91666.67 |
 | 3 | 90000.00 |
 
-### WHERE vs. HAVING — Side by Side
+### WHERE vs. HAVING - Side by Side
 
 | Clause | Filters | Runs |
 |--------|---------|------|
@@ -200,7 +200,7 @@ HAVING AVG(salary) > 80000;
 | **`HAVING`** | Groups (aggregated results) | **After** `GROUP BY` |
 | Can use aggregates? | **No** | **Yes** |
 
-Both can appear in the same query — `WHERE` first (filter rows), then `GROUP BY` (group them), then `HAVING` (filter groups):
+Both can appear in the same query - `WHERE` first (filter rows), then `GROUP BY` (group them), then `HAVING` (filter groups):
 
 ```sql
 SELECT department_id, AVG(salary) AS avg_salary
@@ -214,7 +214,7 @@ HAVING AVG(salary) > 80000;      -- step 3: keep only depts with avg > 80k
 
 ## 4. The Logical Order of Execution
 
-This is one of the most important things to internalize about SQL — **the order you *write* clauses is not the order the database *runs* them**.
+This is one of the most important things to internalize about SQL - **the order you *write* clauses is not the order the database *runs* them**.
 
 | You write it in this order | The database evaluates it in this order |
 |---------------------------|-----------------------------------------|
@@ -230,7 +230,7 @@ This is one of the most important things to internalize about SQL — **the orde
 
 **Why it matters:** when something goes wrong, it's almost always because of this ordering. Examples:
 
-- **Aliases defined in `SELECT` aren't available to `WHERE`** — `WHERE` runs first, before the alias exists.
+- **Aliases defined in `SELECT` aren't available to `WHERE`** - `WHERE` runs first, before the alias exists.
   ```sql
   -- ❌ This fails (in most dialects):
   SELECT salary * 12 AS annual FROM employees WHERE annual > 1000000;
@@ -240,14 +240,14 @@ This is one of the most important things to internalize about SQL — **the orde
 
   -- …or wrap it in a subquery, where the alias does exist outside.
   ```
-- **Aggregates can't appear in `WHERE`** — aggregation hasn't happened yet. Use `HAVING`.
-- **`ORDER BY` *can* see `SELECT` aliases** — because it runs last.
+- **Aggregates can't appear in `WHERE`** - aggregation hasn't happened yet. Use `HAVING`.
+- **`ORDER BY` *can* see `SELECT` aliases** - because it runs last.
 
 Memorize this sequence and a huge category of confusing SQL errors disappears.
 
 ## 5. The CASE Expression
 
-`CASE` is SQL's **if/else** — it lets you assign different values based on conditions. Two forms:
+`CASE` is SQL's **if/else** - it lets you assign different values based on conditions. Two forms:
 
 ### Searched CASE (most common)
 
@@ -288,9 +288,9 @@ SELECT name,
 FROM employees;
 ```
 
-(In practice, you'd use a `JOIN` for this — but `CASE` is useful when the mapping doesn't live in a table.)
+(In practice, you'd use a `JOIN` for this - but `CASE` is useful when the mapping doesn't live in a table.)
 
-### CASE Inside Aggregates — Conditional Counting
+### CASE Inside Aggregates - Conditional Counting
 
 This is one of the most useful idioms in SQL: count rows that match a condition.
 
@@ -314,7 +314,7 @@ GROUP BY department_id;
 
 The trick: `CASE` returns `1` when the condition is true and `0` otherwise; `SUM` adds those up.
 
-### CASE in ORDER BY — Custom Sorting
+### CASE in ORDER BY - Custom Sorting
 
 ```sql
 SELECT name, salary,
@@ -371,7 +371,7 @@ This is the **kind of query a data analyst writes every day**.
 - **Golden rule:** every non-aggregated column in `SELECT` must appear in `GROUP BY`.
 - **`WHERE`** filters rows *before* grouping; **`HAVING`** filters groups *after*.
 - **Logical execution order: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.**
-- **`CASE`** is SQL's if/else — searched and simple forms; powerful inside aggregates for conditional counting.
+- **`CASE`** is SQL's if/else - searched and simple forms; powerful inside aggregates for conditional counting.
 
 ## Quick Self-Check
 

@@ -1,4 +1,4 @@
-# Note 09 — Joins
+# Note 09 - Joins
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -6,20 +6,20 @@
 
 ## What You'll Learn Here
 
-The whole **Joins & Relationships** category — 11 topics that turn separate tables into combined data:
+The whole **Joins & Relationships** category - 11 topics that turn separate tables into combined data:
 
-1. **Why joins?** — normalization in plain language
-2. **`INNER JOIN`** — the workhorse
+1. **Why joins?** - normalization in plain language
+2. **`INNER JOIN`** - the workhorse
 3. **`LEFT JOIN`**
 4. **`RIGHT JOIN`**
 5. **`FULL OUTER JOIN`**
 6. **`CROSS JOIN`**
 7. **`SELF JOIN`**
-8. **Multi-table joins** — chaining 3+ tables
+8. **Multi-table joins** - chaining 3+ tables
 9. **Joining aggregated data**
-10. **Join conditions and join order** — `ON` vs `WHERE`, why outer-join order matters
+10. **Join conditions and join order** - `ON` vs `WHERE`, why outer-join order matters
 11. **Referential integrity basics**
-12. **Many-to-many relationships** — junction tables
+12. **Many-to-many relationships** - junction tables
 
 All examples use the [`employees` and `departments` tables](./01-basics.md#the-working-example--setup-sql), plus two new tables (`projects` + `assignments`) introduced below.
 
@@ -27,13 +27,13 @@ All examples use the [`employees` and `departments` tables](./01-basics.md#the-w
 
 ## 1. Why Joins?
 
-Look at the `employees` table. It has a `department_id` column with values like `1`, `2`, `3`. By itself, that's not useful — "Alice is in department 1" tells you nothing meaningful. The actual department name lives in a separate `departments` table.
+Look at the `employees` table. It has a `department_id` column with values like `1`, `2`, `3`. By itself, that's not useful - "Alice is in department 1" tells you nothing meaningful. The actual department name lives in a separate `departments` table.
 
-This split is deliberate. It's called **normalization** — storing each piece of information *once* so it can't get out of sync. If "Engineering" gets renamed to "Software," you update it in one place, not in every employee row.
+This split is deliberate. It's called **normalization** - storing each piece of information *once* so it can't get out of sync. If "Engineering" gets renamed to "Software," you update it in one place, not in every employee row.
 
 The price of normalization: to answer "what department is Alice in?" you have to **combine** the two tables. That's what joins do.
 
-> **Mental model:** a join is a stitching operation — *"for each row in table A, find matching rows in table B, and combine them side-by-side."*
+> **Mental model:** a join is a stitching operation - *"for each row in table A, find matching rows in table B, and combine them side-by-side."*
 
 ---
 
@@ -76,11 +76,11 @@ INSERT INTO assignments (employee_id, project_id, hours_per_week) VALUES
 - **Alice** is on **two** projects (Cloud + Analytics)
 - **Ethan** is on **no** project
 - **Customer Portal** (project 4) has **no** assignments
-- `assignments` is a **junction table** linking employees to projects (many-to-many — see §12)
+- `assignments` is a **junction table** linking employees to projects (many-to-many - see §12)
 
 ---
 
-## 3. INNER JOIN — Only the Matches
+## 3. INNER JOIN - Only the Matches
 
 `INNER JOIN` (or just `JOIN`) returns rows where the join condition matches in **both** tables. Rows without a match are dropped from both sides.
 
@@ -132,7 +132,7 @@ INNER JOIN departments d
 
 ---
 
-## 4. LEFT JOIN — Keep All of the Left Table
+## 4. LEFT JOIN - Keep All of the Left Table
 
 `LEFT JOIN` (also written `LEFT OUTER JOIN`) returns **all rows from the left table**, even when there's no match in the right table. Where there's no match, the right-side columns come back as `NULL`.
 
@@ -157,12 +157,12 @@ ORDER BY e.name;
 | Hiroshi Tanaka | 1 | 35 |
 
 Notice:
-- **Alice appears twice** — she's on two projects.
-- **Ethan appears once** with `NULL`s on the right — he's on no projects, but `LEFT JOIN` keeps him anyway.
+- **Alice appears twice** - she's on two projects.
+- **Ethan appears once** with `NULL`s on the right - he's on no projects, but `LEFT JOIN` keeps him anyway.
 
 ### Finding "missing" matches
 
-A classic use of `LEFT JOIN` — find rows in the left table with **no** match on the right:
+A classic use of `LEFT JOIN` - find rows in the left table with **no** match on the right:
 
 ```sql
 -- "Which employees are on no project?"
@@ -178,12 +178,12 @@ Result: Ethan Brown.
 
 ---
 
-## 5. RIGHT JOIN — Keep All of the Right Table
+## 5. RIGHT JOIN - Keep All of the Right Table
 
-`RIGHT JOIN` (or `RIGHT OUTER JOIN`) is the mirror image of `LEFT JOIN` — it keeps all rows from the **right** table, even unmatched ones.
+`RIGHT JOIN` (or `RIGHT OUTER JOIN`) is the mirror image of `LEFT JOIN` - it keeps all rows from the **right** table, even unmatched ones.
 
 ```sql
--- "Show every project, plus assigned employees — including projects with no one assigned."
+-- "Show every project, plus assigned employees - including projects with no one assigned."
 SELECT p.name AS project, e.name AS employee
 FROM employees e
 RIGHT JOIN assignments a ON e.id = a.employee_id
@@ -192,18 +192,18 @@ RIGHT JOIN projects p ON a.project_id = p.id;
 
 ### Why you'll rarely use RIGHT JOIN
 
-In practice, **`RIGHT JOIN` is rarely used** — most people swap the table order and use `LEFT JOIN` instead. These two queries are equivalent:
+In practice, **`RIGHT JOIN` is rarely used** - most people swap the table order and use `LEFT JOIN` instead. These two queries are equivalent:
 
 ```sql
 SELECT * FROM a LEFT  JOIN b ON a.x = b.x;
 SELECT * FROM b RIGHT JOIN a ON a.x = b.x;
 ```
 
-> **Real-world advice:** stick with `LEFT JOIN`. It's easier to read because the "primary" table is on the left, which matches the natural reading order. `RIGHT JOIN` exists for completeness — you'll see it occasionally in older code.
+> **Real-world advice:** stick with `LEFT JOIN`. It's easier to read because the "primary" table is on the left, which matches the natural reading order. `RIGHT JOIN` exists for completeness - you'll see it occasionally in older code.
 
 ---
 
-## 6. FULL OUTER JOIN — Keep Everything from Both
+## 6. FULL OUTER JOIN - Keep Everything from Both
 
 `FULL OUTER JOIN` returns **all rows from both tables**. Where there's a match, rows are joined; where there isn't, the missing side comes back as `NULL`.
 
@@ -213,15 +213,15 @@ FROM projects p
 FULL OUTER JOIN assignments a ON p.id = a.project_id;
 ```
 
-Useful when you want to find **mismatches in either direction** — e.g., projects with no employees AND assignments referencing missing projects.
+Useful when you want to find **mismatches in either direction** - e.g., projects with no employees AND assignments referencing missing projects.
 
-> **Dialect note:** MySQL doesn't support `FULL OUTER JOIN` directly — simulate it with a `UNION` of a `LEFT JOIN` and a `RIGHT JOIN`. PostgreSQL, SQL Server, Oracle, and SQLite all support it.
+> **Dialect note:** MySQL doesn't support `FULL OUTER JOIN` directly - simulate it with a `UNION` of a `LEFT JOIN` and a `RIGHT JOIN`. PostgreSQL, SQL Server, Oracle, and SQLite all support it.
 
 ---
 
-## 7. CROSS JOIN — Every Combination
+## 7. CROSS JOIN - Every Combination
 
-`CROSS JOIN` returns the **Cartesian product** of two tables — every row in A paired with every row in B. **No `ON` clause needed** because there's no matching condition.
+`CROSS JOIN` returns the **Cartesian product** of two tables - every row in A paired with every row in B. **No `ON` clause needed** because there's no matching condition.
 
 ```sql
 SELECT e.name, p.name AS project
@@ -240,11 +240,11 @@ With 8 employees and 4 projects, this returns 8 × 4 = **32 rows**.
 
 ---
 
-## 8. SELF JOIN — Join a Table to Itself
+## 8. SELF JOIN - Join a Table to Itself
 
-A **self join** is a regular join where both sides are the same table — using aliases to tell them apart. It's how SQL handles **hierarchical** or **same-table relationship** queries.
+A **self join** is a regular join where both sides are the same table - using aliases to tell them apart. It's how SQL handles **hierarchical** or **same-table relationship** queries.
 
-The classic example: an org chart with a `manager_id` column pointing back into the same `employees` table. Our `employees` table doesn't have that — but imagine it did:
+The classic example: an org chart with a `manager_id` column pointing back into the same `employees` table. Our `employees` table doesn't have that - but imagine it did:
 
 ```sql
 -- Hypothetical: employees has a manager_id column
@@ -253,7 +253,7 @@ FROM employees e
 LEFT JOIN employees m ON e.manager_id = m.id;
 ```
 
-Each row pairs an employee with their manager — both pulled from the same table, aliased as `e` and `m`.
+Each row pairs an employee with their manager - both pulled from the same table, aliased as `e` and `m`.
 
 ### A real example with our data
 
@@ -268,7 +268,7 @@ JOIN employees e2
 ORDER BY e1.department_id, e1.name;
 ```
 
-Result — pairs of co-workers in the same department.
+Result - pairs of co-workers in the same department.
 
 ---
 
@@ -288,7 +288,7 @@ JOIN projects p    ON a.project_id = p.id
 ORDER BY e.name;
 ```
 
-Result — each (employee × project) combination, enriched with department and project names. **8 rows** (the number of assignments).
+Result - each (employee × project) combination, enriched with department and project names. **8 rows** (the number of assignments).
 
 ### Reading the chain
 
@@ -336,7 +336,7 @@ Two subtle topics that trip people up.
 
 ### ON vs. WHERE
 
-In an **inner join**, `ON` and `WHERE` are functionally similar — both filter rows. But in an **outer join** (LEFT/RIGHT/FULL), they're very different:
+In an **inner join**, `ON` and `WHERE` are functionally similar - both filter rows. But in an **outer join** (LEFT/RIGHT/FULL), they're very different:
 
 - **`ON` condition** is applied *during* the join (which rows get matched).
 - **`WHERE` condition** is applied *after* the join (filtering the combined result).
@@ -370,17 +370,17 @@ FROM employees e LEFT JOIN assignments a ...  -- keeps all employees
 FROM assignments a LEFT JOIN employees e ...  -- keeps all assignments
 ```
 
-For inner joins, order doesn't change the *result* — though it can affect performance (the database's planner usually picks the best order automatically).
+For inner joins, order doesn't change the *result* - though it can affect performance (the database's planner usually picks the best order automatically).
 
 ---
 
 ## 12. Referential Integrity Basics
 
-**Referential integrity** is the database property that says: **if column A in table 1 references column B in table 2, every value in A must actually exist in B** — no orphan rows.
+**Referential integrity** is the database property that says: **if column A in table 1 references column B in table 2, every value in A must actually exist in B** - no orphan rows.
 
-Foreign keys (covered in [Note 08 — DDL §11](./08-ddl.md)) are what enforce this. Without referential integrity:
+Foreign keys (covered in [Note 08 - DDL §11](./08-ddl.md)) are what enforce this. Without referential integrity:
 - You might have an employee with `department_id = 99` when there's no department 99.
-- A join wouldn't *break* the database, but the orphan row gets dropped silently — leading to wrong counts and broken reports.
+- A join wouldn't *break* the database, but the orphan row gets dropped silently - leading to wrong counts and broken reports.
 
 ### How Foreign Keys Enforce It
 
@@ -393,8 +393,8 @@ CREATE TABLE assignments (
 ```
 
 After this:
-- You **can't** insert an assignment for an employee that doesn't exist — the database rejects it.
-- You **can't** delete an employee who has assignments — unless you specified `ON DELETE CASCADE` or `SET NULL` (see [Note 08, §11](./08-ddl.md)).
+- You **can't** insert an assignment for an employee that doesn't exist - the database rejects it.
+- You **can't** delete an employee who has assignments - unless you specified `ON DELETE CASCADE` or `SET NULL` (see [Note 08, §11](./08-ddl.md)).
 
 > Referential integrity matters for *correctness*. When it's enforced, your joins always work as expected.
 
@@ -446,7 +446,7 @@ The `LEFT JOIN` makes sure projects with zero employees (Customer Portal) still 
 
 ### Adding attributes to the relationship
 
-A junction table is also where **relationship attributes** live — info that doesn't belong to either side, but to the combination.
+A junction table is also where **relationship attributes** live - info that doesn't belong to either side, but to the combination.
 
 In our `assignments` table, `hours_per_week` is a relationship attribute. It doesn't make sense as a column on `employees` (an employee has many hours, depending on the project) or on `projects` (a project has many hours, depending on the employee). It belongs to the *combination*.
 
@@ -479,11 +479,11 @@ This uses 4 tables, `LEFT JOIN`s (to keep all departments), aggregation, and `CO
 ## Key Takeaways
 
 - **Joins combine tables horizontally** based on a matching column. Normalization splits data; joins re-combine it.
-- **`INNER JOIN`** keeps only matched rows. **`LEFT JOIN`** keeps all left rows. **`RIGHT JOIN`** keeps all right rows (rarely used — flip and use LEFT). **`FULL OUTER`** keeps everything.
+- **`INNER JOIN`** keeps only matched rows. **`LEFT JOIN`** keeps all left rows. **`RIGHT JOIN`** keeps all right rows (rarely used - flip and use LEFT). **`FULL OUTER`** keeps everything.
 - **`CROSS JOIN`** = every combination. Useful intentionally, dangerous accidentally.
 - **`SELF JOIN`** = joining a table to itself with aliases. For hierarchies or same-table comparisons.
 - **Multi-table joins** chain `JOIN ... ON` clauses; mix INNER and LEFT deliberately.
-- **Aggregate then join** for correctness on grouped questions — don't aggregate inside a wide join.
+- **Aggregate then join** for correctness on grouped questions - don't aggregate inside a wide join.
 - In **outer joins**, conditions in `ON` apply during matching; in `WHERE` they apply after. They're not interchangeable.
 - **Referential integrity** (via foreign keys) prevents orphan rows.
 - **Many-to-many** relationships need a **junction table** with foreign keys to both sides. Relationship attributes live in the junction.

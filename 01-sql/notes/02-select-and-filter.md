@@ -1,4 +1,4 @@
-# Note 02 — SELECT & Filter
+# Note 02 - SELECT & Filter
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -6,7 +6,7 @@
 
 ## What You'll Learn Here
 
-Every topic from the **DQL Beginner** category — the core of "reading data" in SQL:
+Every topic from the **DQL Beginner** category - the core of "reading data" in SQL:
 
 1. The `SELECT` statement
 2. `SELECT DISTINCT`
@@ -42,7 +42,7 @@ Master that shape and you can answer most beginner questions immediately.
 
 ## 1. The SELECT Statement
 
-`SELECT` is the most-used SQL command — it **retrieves rows from a table**.
+`SELECT` is the most-used SQL command - it **retrieves rows from a table**.
 
 ### Pick Specific Columns
 
@@ -80,7 +80,7 @@ SELECT name,
 FROM employees;
 ```
 
-Anything that returns a value works in `SELECT` — math, function calls, `CASE` expressions, etc.
+Anything that returns a value works in `SELECT` - math, function calls, `CASE` expressions, etc.
 
 ## 2. SELECT DISTINCT
 
@@ -113,7 +113,7 @@ This returns each unique *combination* of city and department.
 
 ## 3. The WHERE Clause
 
-`WHERE` **filters rows** — keeps only the ones where a condition is true.
+`WHERE` **filters rows** - keeps only the ones where a condition is true.
 
 ```sql
 SELECT name, salary
@@ -164,13 +164,13 @@ WHERE NOT city = 'Remote';
 
 ### Parentheses for Order of Operations
 
-When mixing `AND` and `OR`, use parentheses — `AND` binds tighter than `OR`, and the result can surprise you:
+When mixing `AND` and `OR`, use parentheses - `AND` binds tighter than `OR`, and the result can surprise you:
 
 ```sql
 -- Reads as: (city='Tampa') OR (city='NY' AND salary>80000)
 WHERE city = 'Tampa' OR city = 'New York' AND salary > 80000
 
--- Probably what you wanted — explicit:
+-- Probably what you wanted - explicit:
 WHERE (city = 'Tampa' OR city = 'New York') AND salary > 80000
 ```
 
@@ -193,7 +193,7 @@ ORDER BY salary DESC;
 | Hiroshi Tanaka | 92000 |
 | ... | ... |
 
-- `ASC` = ascending (low to high) — **this is the default if you don't say**
+- `ASC` = ascending (low to high) - **this is the default if you don't say**
 - `DESC` = descending (high to low)
 
 ### Multiple Sort Keys
@@ -217,11 +217,11 @@ SELECT name, salary FROM employees ORDER BY 2 DESC;
 -- 2 means "the second column" = salary
 ```
 
-This works but is considered poor style — prefer the column name for readability.
+This works but is considered poor style - prefer the column name for readability.
 
 ## 5. LIMIT / TOP / FETCH FIRST
 
-Want just the first N rows? Each major SQL dialect spells this differently — but they all do the same thing.
+Want just the first N rows? Each major SQL dialect spells this differently - but they all do the same thing.
 
 | Dialect | Syntax |
 |---------|--------|
@@ -244,9 +244,9 @@ LIMIT 3;
 | Alice Chen | 95000 |
 | Hiroshi Tanaka | 92000 |
 
-> **Tip:** `LIMIT` without `ORDER BY` returns "some 3 rows" — but you have no control over *which* 3. Always pair `LIMIT` with `ORDER BY` when the order matters.
+> **Tip:** `LIMIT` without `ORDER BY` returns "some 3 rows" - but you have no control over *which* 3. Always pair `LIMIT` with `ORDER BY` when the order matters.
 
-### LIMIT + OFFSET — Paginating
+### LIMIT + OFFSET - Paginating
 
 `OFFSET` skips a number of rows before starting. Combined with `LIMIT`, it's how you paginate:
 
@@ -258,7 +258,7 @@ LIMIT 3 OFFSET 3;        -- rows 4, 5, 6 (skipping the top 3)
 
 ## 6. Pattern Matching with LIKE
 
-`LIKE` matches text against a **pattern** — useful when you don't know the exact value.
+`LIKE` matches text against a **pattern** - useful when you don't know the exact value.
 
 ```sql
 SELECT name FROM employees
@@ -316,7 +316,7 @@ The `LIKE` wildcards (`%` and `_`) are the main two beginners need, but it's wor
 | `[a-z]` | `LIKE` (some dialects) | Any character in the range |
 | `[^abc]` | `LIKE` (SQL Server) | Any character *not* in the set |
 
-For more powerful pattern matching (true regular expressions), most databases support `~` (PostgreSQL) or `REGEXP` (MySQL) — covered later in the Functions note.
+For more powerful pattern matching (true regular expressions), most databases support `~` (PostgreSQL) or `REGEXP` (MySQL) - covered later in the Functions note.
 
 ### Escaping a Literal `%` or `_`
 
@@ -347,7 +347,7 @@ WHERE city IN ('Tampa', 'New York');
 
 ### NOT IN
 
-The inverse — match values *not* in the list:
+The inverse - match values *not* in the list:
 
 ```sql
 SELECT name FROM employees
@@ -356,7 +356,7 @@ WHERE city NOT IN ('Tampa', 'Remote');
 
 ### IN with a Subquery
 
-`IN` really shines with a subquery — checking against values computed by another query:
+`IN` really shines with a subquery - checking against values computed by another query:
 
 ```sql
 SELECT name FROM employees
@@ -367,11 +367,11 @@ WHERE department_id IN (
 
 This finds employees whose department is *located* in Tampa, even if those employees themselves live elsewhere. Subqueries get their own detailed note.
 
-> **Beginner gotcha — `NOT IN` and `NULL`:** if the list contains a `NULL`, `NOT IN` returns no rows (because of three-valued logic). When the list might contain nulls, use `NOT EXISTS` instead — more on that in the subqueries note.
+> **Beginner gotcha - `NOT IN` and `NULL`:** if the list contains a `NULL`, `NOT IN` returns no rows (because of three-valued logic). When the list might contain nulls, use `NOT EXISTS` instead - more on that in the subqueries note.
 
 ## 9. The BETWEEN Operator
 
-`BETWEEN` checks if a value falls in an **inclusive range** — both endpoints are included.
+`BETWEEN` checks if a value falls in an **inclusive range** - both endpoints are included.
 
 ```sql
 SELECT name, salary
@@ -405,7 +405,7 @@ WHERE salary NOT BETWEEN 70000 AND 90000
 
 ## 10. IS NULL / IS NOT NULL
 
-As covered in [Basics §14](./01-basics.md#14-null-values), **`NULL` doesn't behave like a regular value** — you can't compare to it with `=`. The special operators are `IS NULL` and `IS NOT NULL`.
+As covered in [Basics §14](./01-basics.md#14-null-values), **`NULL` doesn't behave like a regular value** - you can't compare to it with `=`. The special operators are `IS NULL` and `IS NOT NULL`.
 
 ```sql
 -- Find employees with no assigned department:
@@ -449,7 +449,7 @@ LIMIT 3;
 | Alice Chen | Tampa | 95000 |
 | Grace Liu | New York | 80000 |
 
-This kind of query — filter, sort, take the top N — is **80% of beginner SQL** in real jobs.
+This kind of query - filter, sort, take the top N - is **80% of beginner SQL** in real jobs.
 
 ---
 
@@ -457,14 +457,14 @@ This kind of query — filter, sort, take the top N — is **80% of beginner SQL
 
 - The basic shape: `SELECT … FROM … WHERE … ORDER BY … LIMIT …`
 - `SELECT *` is for exploring; list specific columns in production code.
-- `DISTINCT` returns unique values — great for exploring data.
+- `DISTINCT` returns unique values - great for exploring data.
 - `WHERE` filters rows; combine conditions with `AND`, `OR`, `NOT` (and parentheses to be explicit).
 - Strings in `'single quotes'`; numbers without quotes.
 - `ORDER BY column ASC|DESC` sorts results; multiple columns break ties.
-- `LIMIT N` returns just the first N rows — pair with `ORDER BY` for predictable results.
+- `LIMIT N` returns just the first N rows - pair with `ORDER BY` for predictable results.
 - `LIKE` matches text patterns with `%` (any sequence) and `_` (one character).
 - `IN (...)` is shorthand for many `OR`s; `BETWEEN a AND b` is inclusive on both ends.
-- **Always** use `IS NULL` / `IS NOT NULL` to test for nulls — never `= NULL`.
+- **Always** use `IS NULL` / `IS NOT NULL` to test for nulls - never `= NULL`.
 
 ## Quick Self-Check
 

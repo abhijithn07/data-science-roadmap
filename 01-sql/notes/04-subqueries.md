@@ -1,4 +1,4 @@
-# Note 04 — Subqueries
+# Note 04 - Subqueries
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -6,14 +6,14 @@
 
 ## What You'll Learn Here
 
-The full DQL Intermediate subquery toolkit — every topic from the syllabus:
+The full DQL Intermediate subquery toolkit - every topic from the syllabus:
 
 1. What is a **subquery** and where can it live?
-2. **Correlated subqueries** — when the inner query depends on the outer
-3. **`EXISTS` / `NOT EXISTS`** — existence-based filtering
-4. **`ANY` / `ALL`** — comparing against a set of values
-5. **Derived tables** — subqueries used as a table inside `FROM`
-6. **`CREATE TABLE AS` / `SELECT INTO`** — saving query results to a new table
+2. **Correlated subqueries** - when the inner query depends on the outer
+3. **`EXISTS` / `NOT EXISTS`** - existence-based filtering
+4. **`ANY` / `ALL`** - comparing against a set of values
+5. **Derived tables** - subqueries used as a table inside `FROM`
+6. **`CREATE TABLE AS` / `SELECT INTO`** - saving query results to a new table
 
 All examples use the [`employees` and `departments` tables](./01-basics.md#the-working-example--setup-sql).
 
@@ -33,11 +33,11 @@ Subqueries can show up in three places:
 
 **Subqueries by what they return:**
 
-- **Scalar subquery** — returns exactly one row, one column (one value). Can be used like a single number.
-- **Multi-row subquery** — returns multiple rows, one column. Used with `IN`, `ANY`, `ALL`, `EXISTS`.
-- **Multi-row, multi-column subquery** — returns a full table-shaped result. Used as a derived table in `FROM`.
+- **Scalar subquery** - returns exactly one row, one column (one value). Can be used like a single number.
+- **Multi-row subquery** - returns multiple rows, one column. Used with `IN`, `ANY`, `ALL`, `EXISTS`.
+- **Multi-row, multi-column subquery** - returns a full table-shaped result. Used as a derived table in `FROM`.
 
-### Example — Scalar Subquery in WHERE
+### Example - Scalar Subquery in WHERE
 
 > *"Find employees earning above the company-wide average salary."*
 
@@ -47,7 +47,7 @@ FROM employees
 WHERE salary > (SELECT AVG(salary) FROM employees);
 ```
 
-The inner query `(SELECT AVG(salary) FROM employees)` returns `84375.00` — a single number. The outer query uses it as a comparison value.
+The inner query `(SELECT AVG(salary) FROM employees)` returns `84375.00` - a single number. The outer query uses it as a comparison value.
 
 | name | salary |
 |------|--------|
@@ -56,7 +56,7 @@ The inner query `(SELECT AVG(salary) FROM employees)` returns `84375.00` — a s
 | Diana Kim | 88000 |
 | Hiroshi Tanaka | 92000 |
 
-### Example — Subquery with IN
+### Example - Subquery with IN
 
 > *"Find employees whose department is located in Tampa."*
 
@@ -67,7 +67,7 @@ WHERE department_id IN (
 );
 ```
 
-The inner query returns the IDs of Tampa-located departments (Engineering and HR — `1` and `4`). The outer query then filters employees by those IDs.
+The inner query returns the IDs of Tampa-located departments (Engineering and HR - `1` and `4`). The outer query then filters employees by those IDs.
 
 | name |
 |------|
@@ -82,7 +82,7 @@ The inner query returns the IDs of Tampa-located departments (Engineering and HR
 
 ## 2. Correlated Subqueries
 
-A **correlated subquery** *references the outer query* — so it runs **once per row** of the outer query, with the outer row's values plugged in.
+A **correlated subquery** *references the outer query* - so it runs **once per row** of the outer query, with the outer row's values plugged in.
 
 This is fundamentally different from the non-correlated examples above, where the inner query runs *once* and produces a result the outer query then uses.
 
@@ -103,7 +103,7 @@ WHERE EXISTS (
 Read this carefully:
 - The outer query loops over each employee (aliased as `e`).
 - For each one, the inner query asks: *"is there someone else (`other`) in the same department who earns more?"*
-- The `e.department_id` and `e.salary` references inside the inner query mean it **depends on the current outer row** — that's what makes it correlated.
+- The `e.department_id` and `e.salary` references inside the inner query mean it **depends on the current outer row** - that's what makes it correlated.
 
 Result:
 
@@ -114,21 +114,21 @@ Result:
 | Diana Kim | 88000 | 3 |
 | Ethan Brown | 70000 | 1 |
 
-(Bob, Grace, Hiroshi, and Fatima are each the top earner in their department — Fatima is also the only employee in HR.)
+(Bob, Grace, Hiroshi, and Fatima are each the top earner in their department - Fatima is also the only employee in HR.)
 
 ### Performance Note
 
-Correlated subqueries can be slower than non-correlated ones because the inner query runs again for every outer row. Modern databases often optimize them well, but for huge tables a `JOIN` or a CTE is sometimes faster. Don't optimize prematurely though — readability first.
+Correlated subqueries can be slower than non-correlated ones because the inner query runs again for every outer row. Modern databases often optimize them well, but for huge tables a `JOIN` or a CTE is sometimes faster. Don't optimize prematurely though - readability first.
 
 ---
 
 ## 3. EXISTS / NOT EXISTS
 
-`EXISTS` is a special operator that returns **`TRUE` if a subquery returns at least one row**, and `FALSE` otherwise. It doesn't care about the values — just whether anything matches.
+`EXISTS` is a special operator that returns **`TRUE` if a subquery returns at least one row**, and `FALSE` otherwise. It doesn't care about the values - just whether anything matches.
 
-`SELECT 1` is the conventional placeholder you'll see inside `EXISTS` — you only care about *existence*, not the actual data.
+`SELECT 1` is the conventional placeholder you'll see inside `EXISTS` - you only care about *existence*, not the actual data.
 
-### Example — EXISTS
+### Example - EXISTS
 
 > *"Find employees in a department located in Tampa."*
 
@@ -143,7 +143,7 @@ WHERE EXISTS (
 
 Same result as the `IN` example earlier: Alice, Bob, Ethan, Fatima.
 
-### Example — NOT EXISTS
+### Example - NOT EXISTS
 
 > *"Find employees whose department is NOT located in Tampa."*
 
@@ -158,7 +158,7 @@ WHERE NOT EXISTS (
 
 Result: Carlos, Diana, Grace, Hiroshi.
 
-### EXISTS vs. IN — When to Use Which
+### EXISTS vs. IN - When to Use Which
 
 | Pattern | Best for |
 |---------|----------|
@@ -178,9 +178,9 @@ These operators compare a value against *every* row in a subquery's result.
 | `ANY` (also `SOME`) | The condition is true if it's true for **at least one** row in the subquery |
 | `ALL` | The condition is true only if it's true for **all** rows in the subquery |
 
-### Example — ANY
+### Example - ANY
 
-> *"Find employees who earn more than ANY Engineering employee"* — i.e., more than the **lowest** Engineering salary.
+> *"Find employees who earn more than ANY Engineering employee"* - i.e., more than the **lowest** Engineering salary.
 
 ```sql
 SELECT name, salary FROM employees
@@ -189,13 +189,13 @@ WHERE salary > ANY (SELECT salary FROM employees WHERE department_id = 1);
 
 Engineering salaries: 95000, 110000, 70000. The minimum is 70000.
 
-So this returns anyone earning more than 70000 — everyone except Ethan (70000 — the minimum itself doesn't count, since it's not *strictly* greater) and Fatima (65000).
+So this returns anyone earning more than 70000 - everyone except Ethan (70000 - the minimum itself doesn't count, since it's not *strictly* greater) and Fatima (65000).
 
 Equivalent to: `salary > MIN(engineering_salaries)`.
 
-### Example — ALL
+### Example - ALL
 
-> *"Find employees who earn more than ALL Engineering employees"* — i.e., more than the **highest** Engineering salary.
+> *"Find employees who earn more than ALL Engineering employees"* - i.e., more than the **highest** Engineering salary.
 
 ```sql
 SELECT name, salary FROM employees
@@ -204,7 +204,7 @@ WHERE salary > ALL (SELECT salary FROM employees WHERE department_id = 1);
 
 Engineering salaries: 95000, 110000, 70000. The maximum is 110000.
 
-To beat *all* of them, you need to earn more than 110000 — nobody does. Result: empty.
+To beat *all* of them, you need to earn more than 110000 - nobody does. Result: empty.
 
 Equivalent to: `salary > MAX(engineering_salaries)`.
 
@@ -214,7 +214,7 @@ Equivalent to: `salary > MAX(engineering_salaries)`.
 > - `= ANY` is the same as `IN`
 > - `<> ALL` is the same as `NOT IN`
 
-`ANY` and `ALL` aren't used heavily in practice — usually `IN`, `EXISTS`, or aggregate-based approaches are clearer. But you'll see them in older code and on exams.
+`ANY` and `ALL` aren't used heavily in practice - usually `IN`, `EXISTS`, or aggregate-based approaches are clearer. But you'll see them in older code and on exams.
 
 ---
 
@@ -245,14 +245,14 @@ The inner query (`dept_stats`) produces a small result set with each department'
 | 1 | 91666.67 |
 | 3 | 90000.00 |
 
-> **Beginner note:** the alias after the closing `)` is **required** in most dialects — even if you don't reference it.
+> **Beginner note:** the alias after the closing `)` is **required** in most dialects - even if you don't reference it.
 
 ### Why use a derived table?
 
-- When you can't apply a filter directly (e.g., filtering on the result of `GROUP BY` and `AVG` — which is also what `HAVING` does, but derived tables are more flexible when you need to do *more* than just filter the aggregates).
+- When you can't apply a filter directly (e.g., filtering on the result of `GROUP BY` and `AVG` - which is also what `HAVING` does, but derived tables are more flexible when you need to do *more* than just filter the aggregates).
 - When you need to compute a result once, then join/filter against it.
 
-CTEs (covered in [Note 05](./05-ctes-and-window-functions.md)) are usually a cleaner alternative to derived tables — more on that next.
+CTEs (covered in [Note 05](./05-ctes-and-window-functions.md)) are usually a cleaner alternative to derived tables - more on that next.
 
 ---
 
@@ -260,7 +260,7 @@ CTEs (covered in [Note 05](./05-ctes-and-window-functions.md)) are usually a cle
 
 Two ways to **save a query result as a new permanent table**.
 
-### `CREATE TABLE AS` — Standard SQL
+### `CREATE TABLE AS` - Standard SQL
 
 PostgreSQL, MySQL, Oracle (with slight variations):
 
@@ -273,7 +273,7 @@ WHERE salary > 90000;
 
 This creates a new `high_earners` table populated with the query's results. The new table inherits column names and types from the query.
 
-### `SELECT INTO` — SQL Server Style
+### `SELECT INTO` - SQL Server Style
 
 ```sql
 SELECT *
@@ -282,16 +282,16 @@ FROM employees
 WHERE salary > 90000;
 ```
 
-Same effect, different syntax. (In PostgreSQL, `SELECT INTO` is reserved for use *inside* PL/pgSQL procedures — outside, you use `CREATE TABLE AS`.)
+Same effect, different syntax. (In PostgreSQL, `SELECT INTO` is reserved for use *inside* PL/pgSQL procedures - outside, you use `CREATE TABLE AS`.)
 
 ### Practical Uses
 
-- **Backups** — snapshot a table before a risky operation:
+- **Backups** - snapshot a table before a risky operation:
   ```sql
   CREATE TABLE employees_backup AS SELECT * FROM employees;
   ```
-- **Materialized intermediate results** — when a complex query is reused often, save its results to skip recomputing.
-- **One-off analysis tables** — quick "let me have this slice as a real table for a moment."
+- **Materialized intermediate results** - when a complex query is reused often, save its results to skip recomputing.
+- **One-off analysis tables** - quick "let me have this slice as a real table for a moment."
 
 > **Note:** `CREATE TABLE AS` copies the *data* but typically does **not** copy constraints, indexes, or triggers from the source. You'd add those separately.
 
@@ -331,17 +331,17 @@ Result:
 | Bob Patel | 110000 | 91666.67 |
 | Alice Chen | 95000 | 91666.67 |
 
-(Fatima is in Tampa-located HR but doesn't beat her own department's average since she's the only one — she *is* the average.)
+(Fatima is in Tampa-located HR but doesn't beat her own department's average since she's the only one - she *is* the average.)
 
-This kind of layered query — derived tables + subqueries in `WHERE` — is heavy syntax. **CTEs (Note 05) make this kind of thing much more readable.**
+This kind of layered query - derived tables + subqueries in `WHERE` - is heavy syntax. **CTEs (Note 05) make this kind of thing much more readable.**
 
 ---
 
 ## Key Takeaways
 
-- A **subquery** is a `SELECT` nested inside another query — in `WHERE`, `FROM`, or `SELECT`.
+- A **subquery** is a `SELECT` nested inside another query - in `WHERE`, `FROM`, or `SELECT`.
 - **Non-correlated** subqueries run once. **Correlated** subqueries reference the outer row and run once per outer row.
-- **`EXISTS` / `NOT EXISTS`** check whether a subquery returns any rows — values don't matter, only existence.
+- **`EXISTS` / `NOT EXISTS`** check whether a subquery returns any rows - values don't matter, only existence.
 - `NOT EXISTS` is safer than `NOT IN` when `NULL`s are possible.
 - **`ANY`** ≈ "more than the minimum"; **`ALL`** ≈ "more than the maximum". `= ANY` is the same as `IN`.
 - **Derived tables** are subqueries inside `FROM`, used like real tables. They need an alias.
