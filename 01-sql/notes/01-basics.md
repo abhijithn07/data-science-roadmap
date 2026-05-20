@@ -65,9 +65,50 @@ Non relational ("NoSQL") DBMSs include MongoDB (document), Redis (key value), Ca
 
 ## 3. SQL Server (Microsoft SQL Server)
 
-**SQL Server** is Microsoft's commercial relational database management system. It is one of the most widely used enterprise RDBMSs alongside Oracle, MySQL, and PostgreSQL.
+### What it is
 
-**Key facts about SQL Server:**
+**Microsoft SQL Server** (often shortened to just "SQL Server") is a **relational database management system (RDBMS)** developed and sold by Microsoft. In plain terms, it is the software you install on a machine to actually *run* a database. It is responsible for:
+
+- Storing your tables, indexes, and other database objects on disk.
+- Accepting SQL queries from clients over a network connection.
+- Parsing, optimizing, and executing those queries efficiently.
+- Returning the results to the client.
+- Enforcing the rules you defined: data types, primary keys, foreign keys, constraints, permissions.
+- Managing transactions so that concurrent users don't corrupt each other's changes.
+- Backing up, restoring, replicating, and recovering data.
+
+In other words, when you write `SELECT * FROM employees`, SQL Server is the program on the other end that actually finds your table, reads the rows from disk (or memory cache), and ships them back to you.
+
+### Client and server architecture
+
+SQL Server runs as a **server process** that sits in the background and listens for connections on a network port (default `1433`). It does not have a user interface by itself. To talk to it, you use a **client**, which is any application or tool that knows how to speak the SQL Server protocol.
+
+Common clients include:
+
+| Client | What it is |
+|--------|-----------|
+| **SQL Server Management Studio (SSMS)** | The standard free GUI for writing queries, managing databases, and administering the server. The tool most SQL Server developers use day to day. |
+| **Azure Data Studio** | A lighter weight cross platform alternative to SSMS, focused on querying. |
+| **`sqlcmd`** | A command line tool for running scripts. |
+| **Application code** | Web apps, Python scripts, .NET services, and any other software that uses a SQL Server driver to connect. |
+| **BI tools** | Power BI, Tableau, Excel can all connect to SQL Server as a data source. |
+
+You never edit the data files on disk directly. Everything goes through the server. This is what makes the database safe to share between many users at once: the server enforces order.
+
+### Where it fits in the database world
+
+SQL Server is one of the **four major enterprise relational databases**, along with Oracle Database, MySQL, and PostgreSQL. Of these:
+
+- **SQL Server** and **Oracle** are commercial products with paid editions for production use.
+- **MySQL** and **PostgreSQL** are open source and free.
+
+SQL Server is the natural choice in environments built on the broader **Microsoft stack** (the .NET framework, Windows Server, Azure cloud, Power BI). It is especially common in **finance, healthcare, insurance, retail, and government** because Microsoft offers strong enterprise support, compliance certifications, and tight integration with Active Directory for authentication.
+
+### A note on naming
+
+The phrase "**SQL server**" with a lowercase "s" is sometimes used generically to mean "any database server that speaks SQL." When someone writes "**SQL Server**" with the capitals or specifically says "**Microsoft SQL Server**," they mean the Microsoft product. Context usually makes it clear, but if you ever have to ask, "do you mean the Microsoft product or any database server?" is a reasonable clarification.
+
+### Key facts about SQL Server
 
 | Aspect | Detail |
 |--------|--------|
@@ -78,8 +119,6 @@ Non relational ("NoSQL") DBMSs include MongoDB (document), Redis (key value), Ca
 | **Platforms** | Windows, Linux, Docker, macOS via container |
 | **Default tool** | SQL Server Management Studio (SSMS) |
 | **Cloud version** | Azure SQL Database, Azure SQL Managed Instance |
-
-**Common terminology confusion:** the phrase "SQL server" (lowercase) is sometimes used generically to mean "any database server running SQL." When someone says "I'm using SQL Server" with capital letters, they specifically mean **Microsoft SQL Server** the product. Context usually makes it clear.
 
 **T SQL extensions** (things T SQL has beyond standard SQL):
 - `IDENTITY(1,1)` for auto incrementing columns (similar to MySQL's `AUTO_INCREMENT`)
