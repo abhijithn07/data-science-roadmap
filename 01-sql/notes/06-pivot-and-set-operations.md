@@ -1,4 +1,4 @@
-# Note 06 — PIVOT & Set Operations
+# Note 06 - PIVOT & Set Operations
 
 [← Back to Week 1: SQL](../README.md)
 
@@ -8,9 +8,9 @@
 
 Two distinct DQL Advanced features that round out the "querying" chapter:
 
-1. **`PIVOT`** — turning row values into columns
-2. **`UNPIVOT`** — the reverse: turning columns into rows
-3. **Set operators** — combining the results of multiple queries:
+1. **`PIVOT`** - turning row values into columns
+2. **`UNPIVOT`** - the reverse: turning columns into rows
+3. **Set operators** - combining the results of multiple queries:
    - `UNION` and `UNION ALL`
    - `INTERSECT`
    - `EXCEPT` (a.k.a. `MINUS` in Oracle)
@@ -19,9 +19,9 @@ All examples use the [`employees` and `departments` tables](./01-basics.md#the-w
 
 ---
 
-## 1. PIVOT — Rows to Columns
+## 1. PIVOT - Rows to Columns
 
-A **pivot** takes a tall, narrow table and reshapes it into a wide one — each unique value in some column becomes its own new column.
+A **pivot** takes a tall, narrow table and reshapes it into a wide one - each unique value in some column becomes its own new column.
 
 > **Why?** Reports and dashboards often need **wide-format** data ("a column per category"), while transactional data is usually stored in **long format** (one fact per row).
 
@@ -94,7 +94,7 @@ GROUP BY city;
 
 ---
 
-## 2. UNPIVOT — Columns to Rows
+## 2. UNPIVOT - Columns to Rows
 
 `UNPIVOT` is the reverse: take a wide table and turn columns into rows. Less common, but useful when you receive wide-format data and need to "tidy" it for analysis.
 
@@ -127,7 +127,7 @@ UNPIVOT (
 ) AS u;
 ```
 
-**PostgreSQL / MySQL — manual UNPIVOT with `UNION ALL`:**
+**PostgreSQL / MySQL - manual UNPIVOT with `UNION ALL`:**
 ```sql
 SELECT product, 'q1' AS quarter, q1 AS sales FROM sales_wide
 UNION ALL
@@ -142,7 +142,7 @@ SELECT product, 'q4', q4 FROM sales_wide;
 
 ---
 
-## 3. Set Operators — The Big Idea
+## 3. Set Operators - The Big Idea
 
 **Set operators** combine the results of two `SELECT` statements. They treat each result like a set of rows and apply set-theory operations (union, intersection, difference).
 
@@ -157,8 +157,8 @@ Both queries must:
 
 | Operator | Returns |
 |----------|---------|
-| **`UNION`** | All rows from both queries — **duplicates removed** |
-| **`UNION ALL`** | All rows from both queries — **duplicates kept** (faster) |
+| **`UNION`** | All rows from both queries - **duplicates removed** |
+| **`UNION ALL`** | All rows from both queries - **duplicates kept** (faster) |
 | **`INTERSECT`** | Only rows that appear in **both** queries |
 | **`EXCEPT`** (or **`MINUS`** in Oracle) | Rows from the first query that are **not** in the second |
 
@@ -166,7 +166,7 @@ Both queries must:
 
 ## 4. UNION and UNION ALL
 
-> *"List every location where someone works — including employee cities and department locations."*
+> *"List every location where someone works - including employee cities and department locations."*
 
 ```sql
 SELECT city AS location FROM employees
@@ -188,7 +188,7 @@ Locations in `departments`: Tampa, New York, San Francisco (Tampa appears twice 
 
 ### UNION vs. UNION ALL
 
-Use `UNION ALL` when you **don't** want duplicates removed (and you want better performance — deduplication isn't free):
+Use `UNION ALL` when you **don't** want duplicates removed (and you want better performance - deduplication isn't free):
 
 ```sql
 SELECT city FROM employees
@@ -198,7 +198,7 @@ SELECT location FROM departments;
 
 The result includes Tampa multiple times.
 
-> **Performance tip:** if you know there can't be duplicates between your two queries — or if you don't care — **always prefer `UNION ALL`**. It skips the deduplication step entirely.
+> **Performance tip:** if you know there can't be duplicates between your two queries - or if you don't care - **always prefer `UNION ALL`**. It skips the deduplication step entirely.
 
 ---
 
@@ -224,7 +224,7 @@ SELECT location FROM departments;
 
 ## 6. EXCEPT / MINUS
 
-> *"Find employee cities that are NOT department locations"* — i.e., places where employees live but no department is physically based.
+> *"Find employee cities that are NOT department locations"* - i.e., places where employees live but no department is physically based.
 
 ```sql
 SELECT city FROM employees
@@ -240,17 +240,17 @@ Result:
 
 In Oracle, the same operator is called `MINUS` (same syntax otherwise).
 
-> **Dialect note:** PostgreSQL, SQL Server, and SQLite use `EXCEPT`. Oracle uses `MINUS`. MySQL (before version 8.0.31) didn't support either — workaround: a `LEFT JOIN ... WHERE ... IS NULL`.
+> **Dialect note:** PostgreSQL, SQL Server, and SQLite use `EXCEPT`. Oracle uses `MINUS`. MySQL (before version 8.0.31) didn't support either - workaround: a `LEFT JOIN ... WHERE ... IS NULL`.
 
 ---
 
-## Set Operators vs. JOINs — When to Use Which
+## Set Operators vs. JOINs - When to Use Which
 
 A common beginner question: *"When do I use a `UNION` versus a `JOIN`?"*
 
 | | UNION / INTERSECT / EXCEPT | JOIN |
 |--|---------------------------|------|
-| Combines | Rows of two queries (vertically — stacking) | Columns of two tables (horizontally) |
+| Combines | Rows of two queries (vertically - stacking) | Columns of two tables (horizontally) |
 | Result has | Same number of columns as each input | Combined columns from both tables |
 | Used for | "Items in A and/or B" set operations | "Look up related info" relational queries |
 
@@ -260,7 +260,7 @@ If you want to stack two similar result sets, use a set operator. If you want to
 
 ## Putting It All Together
 
-Combining set operators with a pivot — for a quick summary report:
+Combining set operators with a pivot - for a quick summary report:
 
 > *"Build a single column listing every distinct 'location' across employees and departments (using UNION), then count how many employees live there and how many departments are there."*
 
@@ -288,16 +288,16 @@ ORDER BY a.location;
 | San Francisco | 2 | 1 |
 | Tampa | 3 | 2 |
 
-This combines a CTE, a set operator, and joins — the kind of layered query that's standard in real analytics work.
+This combines a CTE, a set operator, and joins - the kind of layered query that's standard in real analytics work.
 
 ---
 
 ## Key Takeaways
 
-- **`PIVOT`** turns row values into columns. Syntax varies — the **portable** approach is **`CASE` inside aggregates** with `GROUP BY`.
-- **`UNPIVOT`** is the reverse — less common in SQL; usually easier in Pandas (`melt`).
+- **`PIVOT`** turns row values into columns. Syntax varies - the **portable** approach is **`CASE` inside aggregates** with `GROUP BY`.
+- **`UNPIVOT`** is the reverse - less common in SQL; usually easier in Pandas (`melt`).
 - Set operators (`UNION`, `INTERSECT`, `EXCEPT`/`MINUS`) combine query results **vertically**. Both queries must have the same number of columns with compatible types.
-- **`UNION`** removes duplicates; **`UNION ALL`** keeps them and is faster — prefer it when dedup isn't needed.
+- **`UNION`** removes duplicates; **`UNION ALL`** keeps them and is faster - prefer it when dedup isn't needed.
 - **JOINs combine columns horizontally; set operators stack rows vertically.** Different jobs.
 
 ## Quick Self-Check
