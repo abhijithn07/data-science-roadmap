@@ -1,8 +1,8 @@
-# Week 1 — SQL
+# Week 1 - SQL
 
 The first stop on the roadmap, and the most universally useful skill in data. **SQL** (Structured Query Language) is how you ask questions of stored data. Every data analyst, scientist, and engineer uses it.
 
-These notes cover SQL **end to end** — from "what is a database" to ACID, transactions, and window functions — broken into 11 focused notes you can work through in order.
+These notes cover SQL **end to end** - from "what is a database" to ACID, transactions, and window functions - broken into 11 focused notes you can work through in order.
 
 → Back to [Roadmap Home](../README.md) · [Overview](../00-overview/README.md)
 
@@ -24,7 +24,7 @@ Organized by SQL category (the standard breakdown used in interviews and textboo
 
 ## Why Start With SQL?
 
-Look at the [data roles table in the overview](../00-overview/README.md#the-data-roles) — SQL shows up in *every* role. Most data lives in databases that speak SQL, and the syntax barely changes year to year. It's the most stable, transferable skill on the roadmap.
+Look at the [data roles table in the overview](../00-overview/README.md#the-data-roles) - SQL shows up in *every* role. Most data lives in databases that speak SQL, and the syntax barely changes year to year. It's the most stable, transferable skill on the roadmap.
 
 SQL maps to the **Store, Clean, Analyze** stages of the [data lifecycle](../00-overview/README.md#the-data-lifecycle).
 
@@ -34,7 +34,7 @@ You don't need to install anything heavy to start.
 
 | Option | What it is | Good for |
 |--------|-----------|----------|
-| **[DB Fiddle](https://www.db-fiddle.com/)** | Run SQL in a browser tab — no install | Quick experiments, switching dialects |
+| **[DB Fiddle](https://www.db-fiddle.com/)** | Run SQL in a browser tab - no install | Quick experiments, switching dialects |
 | **SQLite + [DB Browser for SQLite](https://sqlitebrowser.org/)** | A lightweight local database in a single file | Following along locally |
 | **PostgreSQL + pgAdmin** | A production-grade database with a GUI | Full power, standard syntax |
 
@@ -82,16 +82,16 @@ All notes use the same two tables so the examples build up consistently:
 | 3 | Sales | San Francisco |
 | 4 | HR | Tampa |
 
-(Setup SQL is at the end of [Note 01 — Basics](./notes/01-basics.md#the-working-example--setup-sql).)
+(Setup SQL is at the end of [Note 01 - Basics](./notes/01-basics.md#the-working-example--setup-sql).)
 
 ## Progress
 
-- [x] Read notes 01–11 — **Week 1 SQL complete!**
+- [x] Read notes 01–11 - **Week 1 SQL complete!**
 - [ ] Run every example yourself in DB Fiddle or your local database
 - [ ] Do the Quick Self-Check questions at the end of each note
 - [ ] Solve 15+ SQL problems on HackerRank or LeetCode
 - [ ] Push notes and any practice queries to GitHub
-- [ ] Move on to Week 2 — Python
+- [ ] Move on to Week 2 - Python
 
 ---
 
