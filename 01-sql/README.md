@@ -28,19 +28,17 @@ Look at the [data roles table in the overview](../00-overview/README.md#the-data
 
 SQL maps to the **Store, Clean, Analyze** stages of the [data lifecycle](../00-overview/README.md#the-data-lifecycle).
 
-## Getting Set Up
+## My Setup
 
-You don't need to install anything heavy to start. Pick one of these based on your goals:
+The tools I'm using for this roadmap:
 
-| Option | What it is | Good for |
-|--------|-----------|----------|
-| **[DB Fiddle](https://www.db-fiddle.com/)** | Run SQL in a browser tab, no install | Quick experiments, switching dialects |
-| **SQLite + [DB Browser for SQLite](https://sqlitebrowser.org/)** | A lightweight local database in a single file | Following along locally |
-| **PostgreSQL + pgAdmin** | A production grade open source database with a GUI | Full power, standard syntax |
-| **Microsoft SQL Server + SSMS** | Microsoft's enterprise RDBMS with SQL Server Management Studio as the client | Enterprise environments, T SQL practice |
-| **MySQL + [MySQL Workbench](https://dev.mysql.com/downloads/workbench/)** | MySQL database with Oracle's official GUI tool (sometimes called "SQL Workbench") | Working with MySQL, including the Sakila sample database |
+| Tool | What it is |
+|------|-----------|
+| **Microsoft SQL Server + SSMS** | Microsoft's enterprise RDBMS, with SQL Server Management Studio as the client. T SQL dialect. |
+| **MySQL + [MySQL Workbench](https://dev.mysql.com/downloads/workbench/)** | MySQL database with Oracle's official GUI tool (sometimes called "SQL Workbench"). |
+| **[Sakila database](https://dev.mysql.com/doc/sakila/en/)** | The standard MySQL sample database. Models a DVD rental store with 16 tables. Detailed walkthrough in [Note 01](./notes/01-basics.md#5-sakila-database). |
 
-For **sample data**, the [Sakila database](https://dev.mysql.com/doc/sakila/en/) is the standard MySQL sample database. It models a DVD rental store with 16 tables and is the most widely used dataset for learning SQL. Detailed walkthrough in [Note 01](./notes/01-basics.md#5-sakila-database).
+The notes use mostly standard SQL with dialect notes called out where syntax varies, so you can follow along in any SQL environment.
 
 For **practice problems** (essential for interview prep): [HackerRank SQL](https://www.hackerrank.com/domains/sql), [LeetCode SQL 50](https://leetcode.com/studyplan/top-sql-50/), [StrataScratch](https://www.stratascratch.com/).
 
