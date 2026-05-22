@@ -1,60 +1,46 @@
--- Assignment 1, DQL practice
--- 15 questions on the Sakila database
+-- Assignment 1
+-- Abhijith Nallana 
 
 USE sakila;
 
 
 -- Q1. Get all customers whose first name starts with 'J' and who are active.
 
-SELECT customer_id, first_name, last_name, email, active
-FROM customer
-WHERE first_name LIKE 'J%'
-  AND active = 1;
+SELECT customer_id, first_name, last_name, email, active FROM customer
+WHERE first_name LIKE 'J%' AND active = 1;
 
 
--- Q2. Find all films where the title contains the word 'ACTION'
---     or the description contains 'WAR'.
+-- Q2. Find all films where the title contains the word 'ACTION' or the description contains 'WAR'.
 
-SELECT film_id, title, description
-FROM film
-WHERE title LIKE '%ACTION%'
-   OR description LIKE '%WAR%';
+SELECT film_id, title, description FROM film
+WHERE title LIKE '%ACTION%' OR description LIKE '%WAR%';
 
 
--- Q3. List all customers whose last name is not 'SMITH'
---     and whose first name ends with 'a'.
+-- Q3. List all customers whose last name is not 'SMITH' and whose first name ends with 'a'.
 
-SELECT customer_id, first_name, last_name
-FROM customer
-WHERE last_name <> 'SMITH'
-  AND first_name LIKE '%a';
+SELECT customer_id, first_name, last_name FROM customer
+WHERE last_name <> 'SMITH' AND first_name LIKE '%a';
 
 
--- Q4. Get all films where the rental rate is greater than 3.0
---     and the replacement cost is not null.
+-- Q4. Get all films where the rental rate is greater than 3.0 and the replacement cost is not null.
 
-SELECT film_id, title, rental_rate, replacement_cost
-FROM film
-WHERE rental_rate > 3.0
-  AND replacement_cost IS NOT NULL;
+SELECT film_id, title, rental_rate, replacement_cost FROM film
+WHERE rental_rate > 3.0 AND replacement_cost IS NOT NULL;
 
 
 -- Q5. Count how many customers exist in each store who have active status = 1.
 
-SELECT store_id, COUNT(*) AS active_customers
-FROM customer
-WHERE active = 1
+SELECT store_id, COUNT(*) AS active_customers FROM customer
+WHERE active = 1 
 GROUP BY store_id;
 
 
 -- Q6. Show distinct film ratings available in the film table.
 
-SELECT DISTINCT rating
-FROM film;
+SELECT DISTINCT rating FROM film;
 
 
--- Q7. Find the number of films for each rental duration where
---     the average length is more than 100 minutes.
+-- Q7. Find the number of films for each rental duration where the average length is more than 100 minutes.
 
 SELECT rental_duration,
        COUNT(*)    AS film_count,
@@ -64,9 +50,7 @@ GROUP BY rental_duration
 HAVING AVG(length) > 100;
 
 
--- Q8. List payment dates and total amount paid per date,
---     but only include days where more than 100 payments were made.
--- payment_date is a datetime, so DATE() strips the time to group by day.
+-- Q8. List payment dates and total amount paid per date, but only include days where more than 100 payments were made. payment_date is a datetime, so DATE() strips the time to group by day.
 
 SELECT DATE(payment_date) AS pay_date,
        COUNT(*)           AS payment_count,
