@@ -90,7 +90,7 @@ SELECT
 FROM payment;
 
 
--- Q8. Display the age in year, months, days based on your date of birth.
+-- Q8. Display the age in year, months, days based on your date of birth. [I didnt understand this question properly, Check with Ruchik ]
 SELECT
     '2000-01-15' AS dob,
     CURDATE()    AS today,
