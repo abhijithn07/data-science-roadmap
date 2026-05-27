@@ -1,4 +1,5 @@
 -- 26/05/2026, INDEXES, KEYS, QUERY FINE TUNING
+-- absent for this class, taken help from classmates notes
 
 USE sakila;
 
