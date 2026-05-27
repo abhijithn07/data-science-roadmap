@@ -40,7 +40,7 @@ SELECT rental_duration,
        AVG(length) AS avg_length
 FROM film
 GROUP BY rental_duration
-HAVING AVG(length) > 100;
+HAVING avg_length > 100;
 
 
 -- Q8. List payment dates and total amount paid per date, but only include days where more than 100 payments were made. payment_date is a datetime, so DATE() strips the time to group by day.
