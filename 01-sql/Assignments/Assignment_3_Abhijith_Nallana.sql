@@ -3,8 +3,7 @@
 USE sakila;
 
 
--- Q1. Display all customer details who have made more than 5 payments.
-
+-- Q1. Display all customer details who have made more than 5 payments
 SELECT *
 FROM customer
 WHERE customer_id IN (
@@ -16,7 +15,6 @@ WHERE customer_id IN (
 
 
 -- Q2. Find the names of actors who have acted in more than 10 films.
-
 SELECT first_name, last_name
 FROM actor
 WHERE actor_id IN (
@@ -28,7 +26,6 @@ WHERE actor_id IN (
 
 
 -- Q3. Find the names of customers who never made a payment.
-
 SELECT first_name, last_name
 FROM customer
 WHERE customer_id NOT IN (
@@ -37,9 +34,7 @@ WHERE customer_id NOT IN (
 );
 
 
--- Q4. List all films whose rental rate is higher than the average rental rate
---     of all films.
-
+-- Q4. List all films whose rental rate is higher than the average rental rate of all films.
 SELECT film_id, title, rental_rate
 FROM film
 WHERE rental_rate > (
@@ -49,7 +44,6 @@ WHERE rental_rate > (
 
 
 -- Q5. List the titles of films that were never rented.
-
 SELECT title
 FROM film
 WHERE film_id NOT IN (
@@ -59,9 +53,7 @@ WHERE film_id NOT IN (
 );
 
 
--- Q6. Display the customers who rented films in the same month
---     as customer with ID 5.
-
+-- Q6. Display the customers who rented films in the same month as customer with ID 5.
 SELECT DISTINCT c.customer_id, c.first_name, c.last_name
 FROM customer c
 JOIN rental r ON r.customer_id = c.customer_id
@@ -73,9 +65,7 @@ WHERE MONTH(r.rental_date) IN (
 AND c.customer_id <> 5;
 
 
--- Q7. Find all staff members who handled a payment greater than
---     the average payment amount.
-
+-- Q7. Find all staff members who handled a payment greater than the average payment amount.
 SELECT DISTINCT s.staff_id, s.first_name, s.last_name
 FROM staff s
 WHERE s.staff_id IN (
@@ -88,9 +78,7 @@ WHERE s.staff_id IN (
 );
 
 
--- Q8. Show the title and rental duration of films whose rental duration
---     is greater than the average.
-
+-- Q8. Show the title and rental duration of films whose rental duration is greater than the average.
 SELECT title, rental_duration
 FROM film
 WHERE rental_duration > (
@@ -100,7 +88,6 @@ WHERE rental_duration > (
 
 
 -- Q9. Find all customers who have the same address as customer with ID 1.
-
 SELECT customer_id, first_name, last_name, address_id
 FROM customer
 WHERE address_id = (
@@ -112,7 +99,6 @@ AND customer_id <> 1;
 
 
 -- Q10. List all payments that are greater than the average of all payments.
-
 SELECT payment_id, customer_id, amount, payment_date
 FROM payment
 WHERE amount > (
