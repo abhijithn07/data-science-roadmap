@@ -1,5 +1,4 @@
 -- 26/05/2026, INDEXES, KEYS, QUERY FINE TUNING
--- was absent this session, catching up from a classmate's notes
 
 USE sakila;
 
@@ -28,7 +27,6 @@ WHERE customer_id = 10;
 
 
 -- 3. NON-CLUSTERED INDEX (regular index)
---
 -- a separate structure stored alongside the table.
 -- holds the indexed column value plus a pointer to the row.
 -- does NOT change the physical order of the table.
