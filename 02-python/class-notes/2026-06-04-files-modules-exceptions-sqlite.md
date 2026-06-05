@@ -377,7 +377,3 @@ print("-" * 60)
 ```
 
 Each row comes back as a tuple, for example `(101, 'John', 99)`.
-
----
-
-*Part of the [Data Science Roadmap](../../README.md)*
