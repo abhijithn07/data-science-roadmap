@@ -2,7 +2,7 @@
 
 The reasoning layer of the roadmap. **Statistics** is the math of describing data and drawing valid conclusions under uncertainty. SQL gets the data, Python manipulates it, and statistics tells you what it actually means and whether you can trust it.
 
-These notes cover statistics **end to end** for data science: from describing a single column, through probability and distributions, to inference (confidence intervals, hypothesis tests), relationships (correlation, regression), and the practical topics that show up in real work (A/B testing, resampling, common traps). Broken into 16 focused notes you can work through in order.
+These notes cover statistics **end to end** for data science: from describing a single column, through probability and distributions, to inference (confidence intervals, hypothesis tests), relationships (correlation, regression), and the practical topics that show up in real work (A/B testing, resampling, common traps). Broken into 19 focused notes you can work through in order.
 
 Back to [Roadmap Home](../README.md) and [Overview](../00-overview/README.md)
 
@@ -52,15 +52,18 @@ For **practice**: work each example by hand once, then in Python. Khan Academy S
 | 05 | [Random Variables and Distributions](./notes/05-random-variables.md) | random variables, PMF, PDF, CDF, expectation, variance, properties of expectation | ✅ |
 | 06 | [Discrete Distributions](./notes/06-discrete-distributions.md) | uniform, Bernoulli, binomial, Poisson, geometric, negative binomial, hypergeometric | ✅ |
 | 07 | [Continuous Distributions](./notes/07-continuous-distributions.md) | uniform, normal, standard normal, t, chi-square, F, exponential, log-normal | ✅ |
-| 08 | [Sampling and the Central Limit Theorem](./notes/08-sampling-and-clt.md) | sampling methods, sampling distribution, standard error, CLT, law of large numbers | ⏳ |
-| 09 | [Estimation and Confidence Intervals](./notes/09-confidence-intervals.md) | point vs interval estimation, CI for mean and proportion, margin of error, t vs z, sample size | ⏳ |
-| 10 | [Hypothesis Testing Fundamentals](./notes/10-hypothesis-testing.md) | null and alternative, type I and II errors, alpha, p-value, critical value, power, one vs two tailed | ⏳ |
-| 11 | [Common Statistical Tests](./notes/11-common-tests.md) | z-test, one/two-sample/paired t-tests, ANOVA, chi-square, F-test, how to choose a test | ⏳ |
-| 12 | [Correlation and Covariance](./notes/12-correlation.md) | covariance, Pearson, Spearman, correlation matrix, correlation vs causation | ⏳ |
-| 13 | [Linear Regression](./notes/13-linear-regression.md) | simple and multiple regression, OLS, assumptions, R-squared, coefficients, residuals | ⏳ |
-| 14 | [Bayesian Statistics](./notes/14-bayesian.md) | Bayesian vs frequentist, prior, likelihood, posterior, conjugate priors | ⏳ |
-| 15 | [Experiment Design and A/B Testing](./notes/15-ab-testing.md) | controlled experiments, randomization, A/B workflow, power and significance in practice | ⏳ |
-| 16 | [Resampling and Statistical Pitfalls](./notes/16-resampling-and-pitfalls.md) | bootstrap, permutation tests, Simpson's paradox, multiple comparisons, p-hacking, confounding | ⏳ |
+| 08 | [Sampling and the Central Limit Theorem](./notes/08-sampling-and-clt.md) | sampling methods, sampling distribution, standard error, CLT, law of large numbers | ✅ |
+| 09 | [Estimation and Confidence Intervals](./notes/09-confidence-intervals.md) | point vs interval estimation, CI for mean and proportion, margin of error, t vs z, sample size | ✅ |
+| 10 | [Hypothesis Testing Fundamentals](./notes/10-hypothesis-testing.md) | null and alternative, type I and II errors, alpha, p-value, critical value, power, one vs two tailed | ✅ |
+| 11 | [Common Statistical Tests](./notes/11-common-tests.md) | z-test, one/two-sample/paired t-tests, ANOVA, chi-square, F-test, how to choose a test | ✅ |
+| 12 | [Correlation and Covariance](./notes/12-correlation.md) | covariance, Pearson, Spearman, correlation matrix, correlation vs causation | ✅ |
+| 13 | [Linear Regression](./notes/13-linear-regression.md) | simple and multiple regression, OLS, assumptions, R-squared, coefficients, residuals | ✅ |
+| 14 | [Bayesian Statistics](./notes/14-bayesian.md) | Bayesian vs frequentist, prior, likelihood, posterior, conjugate priors | ✅ |
+| 15 | [Experiment Design and A/B Testing](./notes/15-ab-testing.md) | controlled experiments, randomization, A/B workflow, power and significance in practice | ✅ |
+| 16 | [Resampling and Statistical Pitfalls](./notes/16-resampling-and-pitfalls.md) | bootstrap, permutation tests, Simpson's paradox, multiple comparisons, p-hacking, confounding | ✅ |
+| 17 | [Estimation and Maximum Likelihood](./notes/17-estimation-and-mle.md) | estimators, unbiased/consistent/efficient, likelihood, MLE, log-likelihood | ✅ |
+| 18 | [Effect Size and Practical Significance](./notes/18-effect-size.md) | statistical vs practical significance, Cohen's d, r, R-squared, reporting results | ✅ |
+| 19 | [Checking Assumptions and Normality](./notes/19-checking-assumptions.md) | Q-Q plots, Shapiro-Wilk, Levene's test, independence, transforms, nonparametric fallbacks | ✅ |
 
 ## The Working Example
 
@@ -89,7 +92,7 @@ df = pd.DataFrame({
 
 ## Progress
 
-- [ ] Read notes 01 to 16
+- [ ] Read notes 01 to 19
 - [ ] Run every example yourself in a notebook
 - [ ] Work the key formulas by hand once before trusting the library
 - [ ] Do the Quick Self Check questions at the end of each note
