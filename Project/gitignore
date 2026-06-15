@@ -1,0 +1,24 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+
+# ---- Raw data (USDA you download once; NHANES auto-downloads in the notebook) ----
+data/raw/usda/
+data/raw/nhanes/
+
+# ---- Generated artifacts (rebuilt by running the notebook) ----
+database/*.db
+data/processed/*.csv
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
