@@ -170,4 +170,5 @@ Key descriptive findings (associations, not causation):
 
 ## Author
 
-Abhijith Nallana. Academic capstone project, USF Muma College of Business.
+Abhijith Nallana.
+
