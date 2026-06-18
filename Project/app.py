@@ -35,10 +35,6 @@ def apply_theme():
           font-family:'Inter',-apple-system,sans-serif; color:var(--ink);
         }
         h1,h2,h3,h4{ font-family:'Sora',sans-serif !important; letter-spacing:-.02em; font-weight:700; }
-        /* Keep Streamlit's Material icons rendering as glyphs, not as their text names */
-        [data-testid="stIconMaterial"], .material-symbols-rounded, .material-icons, span[class*="material-symbols"]{
-          font-family:'Material Symbols Rounded','Material Symbols Outlined','Material Icons' !important;
-        }
         section[data-testid="stSidebar"]{ background:linear-gradient(180deg,var(--brand-d),var(--brand)); }
         section[data-testid="stSidebar"] *{ color:#eaf3f0 !important; }
         section[data-testid="stSidebar"] h1{ color:#ffffff !important; font-size:1.45rem; }
