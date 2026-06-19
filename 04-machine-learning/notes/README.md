@@ -10,7 +10,7 @@ Built in batches so each topic stays detailed. Status is marked below. Files 1 t
 2. [ML Lifecycle](02-ml-lifecycle.md) - problem definition, business understanding, data collection, data cleaning, EDA, feature engineering, model building, evaluation, deployment, monitoring [DONE]
 3. [Bias and Variance](03-bias-variance.md) - bias, variance, bias-variance tradeoff, overfitting, underfitting [DONE]
 4. [Optimization](04-optimization.md) - cost and loss functions, gradient descent (batch, stochastic, mini-batch), learning rate [DONE]
-5. Feature Engineering - missing values, imputation, outliers, scaling, standardization, normalization, encoding, transformation, feature selection, feature extraction, PCA, data leakage, class imbalance, SMOTE [coming]
+5. [Feature Engineering](05-feature-engineering.md) - missing values, imputation, outliers, scaling, standardization, normalization, encoding, transformation, feature selection, dimensionality reduction, PCA, data leakage, class imbalance, SMOTE [DONE]
 6. Regression - linear, multiple, polynomial, ridge, lasso, elastic net [coming]
 7. Classification - logistic regression, KNN, decision trees, random forest, naive bayes, SVM [coming]
 8. Boosting - AdaBoost, gradient boosting, XGBoost, LightGBM, CatBoost [coming]
