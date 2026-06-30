@@ -139,7 +139,7 @@ for chunk in model.stream("write a 200 word paragraph on AI"):
 **Batch sends multiple independent requests in parallel, improving throughput and cutting cost.** `max_concurrency` caps how many run together, so 10 prompts with a cap of 5 go out in two waves.
 
 ```python
-responses = model.batch(["q1", "q2", "q3"], config={"max_concurrency": 5})
+responses = model.batch(["How do aeroplanes fly?", "Why do parrots have colorful feathers?", "What is quantum computing?"], config={"max_concurrency": 5})
 ```
 
 ### Tools
