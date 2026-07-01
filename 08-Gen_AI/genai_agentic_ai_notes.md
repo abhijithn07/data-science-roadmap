@@ -41,6 +41,10 @@ from langchain_core.output_parsers import StrOutputParser
 prompt = ChatPromptTemplate.from_messages([("system", "You are helpful"), ("user", "{question}")])
 chain = prompt | llm | StrOutputParser()      # prompt -> llm -> parsed string
 chain.invoke({"question": "What is RAG?"})
+
+# Output (illustrative):
+# 'RAG fetches relevant documents and passes them to the LLM as context,
+#  so it answers from real sources instead of only its training data.'
 ```
 
 The `|` reads left to right: the prompt is filled, passed to the LLM, and the LLM output is parsed into a clean string.
@@ -83,6 +87,10 @@ uv venv                      # create a virtual environment named .venv
 uv add -r requirement.txt    # install everything in requirement.txt
 uv add langchain             # install a single library directly
 uv add ipykernel             # kernel so the venv works inside Jupyter
+
+# uv init  -> Initialized project
+# uv venv  -> Creating virtual environment at: .venv
+# uv add   -> Resolved and installed the requested packages
 ```
 
 Keys go in a `.env` file (OpenAI, Google, Groq) and load with `python-dotenv`.
@@ -103,6 +111,9 @@ def get_weather(city: str) -> str:
 agent = create_agent(model="gpt-5", tools=[get_weather], system_prompt="You are a helpful assistant")
 response = agent.invoke({"messages": [{"role": "user", "content": "What is the weather in New York?"}]})
 print(response["messages"][-1].content)
+
+# Output:
+# The weather in New York is sunny.
 ```
 
 Two essentials: the input must be a dict keyed on `messages`, and the LLM picks a tool by reading its **docstring**, which is the schema description it matches against the request.
@@ -121,6 +132,8 @@ from langchain.chat_models import init_chat_model
 model = init_chat_model("gpt-4.1")                          # OpenAI
 model = init_chat_model("google_genai:gemini-2.5-flash")    # Google Gemini
 model = init_chat_model("groq:qwen-qwq-32b")                # Groq (open-source models, fast inference)
+
+# (no output; each call returns a ready-to-use chat model object)
 ```
 
 Provider classes (`ChatOpenAI`, `ChatGoogleGenerativeAI`, `ChatGroq`) do the same thing.
@@ -134,12 +147,18 @@ Two execution patterns matter for real chatbots.
 ```python
 for chunk in model.stream("write a 200 word paragraph on AI"):
     print(chunk.text, end="", flush=True)
+
+# Output (streamed token by token):
+# Artificial intelligence is a branch of computer science that ... (continues)
 ```
 
 **Batch sends multiple independent requests in parallel, improving throughput and cutting cost.** `max_concurrency` caps how many run together, so 10 prompts with a cap of 5 go out in two waves.
 
 ```python
-responses = model.batch(["How do aeroplanes fly?", "Why do parrots have colorful feathers?", "What is quantum computing?"], config={"max_concurrency": 5})
+responses = model.batch(["q1", "q2", "q3"], config={"max_concurrency": 5})
+
+# Output:
+# [AIMessage('answer to q1'), AIMessage('answer to q2'), AIMessage('answer to q3')]
 ```
 
 ### Tools
@@ -163,27 +182,107 @@ def get_weather(location: str) -> str:
 model_with_tools = model.bind_tools([get_weather])
 response = model_with_tools.invoke("What's the weather like in Boston?")
 print(response.tool_calls)
+
+# Output:
+# [{'name': 'get_weather', 'args': {'location': 'Boston'}, 'id': 'call_1', 'type': 'tool_call'}]
 ```
 
 `bind_tools` only tells the model which tools exist. Running the chosen tool and feeding the result back is the **tool execution loop**: invoke the model, append the AI message, run each tool call with `tool.invoke(call)`, append the tool result, then invoke the model again so it answers with the context.
 
 ### Messages
 
-Messages are the fundamental unit of context, and their role matters most.
+Messages are the fundamental unit of context for a model, and the role on each one matters most.
 
-**A message has a role, content, and optional metadata; the role identifies the type:** system (instruction on how to behave), human (user input), AI (model response, including tool calls), and tool (output from a tool call). A bare string is treated as a human message (a **text prompt**, good for single standalone requests). A list of role-tagged messages is a **message prompt**, used for conversation history and system instructions:
+**A message is an object with three fields: role (which identifies the type), content (the actual text, and optionally audio or documents), and metadata (optional extra fields such as a name or an id for tracing).** Plainly: every input to and output from the model is a message, and the role tells the model what kind it is.
+
+There are four message types:
+
+- **System message**: an instruction telling the model how to behave (its role, tone, and rules).
+- **Human message**: the user's input.
+- **AI message**: the model's response, which can include text, tool calls, and metadata.
+- **Tool message**: the output returned by a tool call.
+
+**Text prompt vs message prompt.** A bare string is a text prompt: it is treated as a single human message, good for a standalone request where you do not need conversation history.
+
+```python
+# text prompt: a plain string is treated as a human message
+model.invoke("What is LangChain?")
+
+# Output:
+# AIMessage("LangChain is a framework for building applications on top of LLMs...")
+```
+
+A list of role-tagged messages is a message prompt, used for conversation history and system instructions.
 
 ```python
 from langchain.messages import SystemMessage, HumanMessage
 
 messages = [
-    SystemMessage("You are a senior Python developer. Always provide code examples and explain your reasoning."),
+    SystemMessage("You are a poetry expert."),               # how the model should behave
+    HumanMessage("Write a poem on artificial intelligence."),
+]
+response = model.invoke(messages)
+print(response.content)
+
+# Output:
+# a poem about artificial intelligence, shaped by the system instruction
+```
+
+A one-line system message already steers the answer; a detailed one steers it more.
+
+```python
+messages = [
+    SystemMessage("You are a senior Python developer. Always give code examples and explain your reasoning."),
     HumanMessage("How do I create a REST API?"),
 ]
 response = model.invoke(messages)
+
+# Output:
+# a detailed, code-first answer, because the system message asked for exactly that
 ```
 
-A detailed system message yields a more specific answer than a generic one. Token usage is on `response.usage_metadata`.
+You can also create an AI message by hand to build a conversation history the model continues from.
+
+```python
+from langchain.messages import SystemMessage, HumanMessage, AIMessage
+
+history = [
+    SystemMessage("You are a helpful assistant."),
+    HumanMessage("Can you help me?"),
+    AIMessage("I'd be happy to help you with that question."),   # created manually, not by the model
+    HumanMessage("What is 2 + 2?"),
+]
+model.invoke(history)
+
+# Output:
+# AIMessage("2 + 2 is 4.")   # the model continues from the supplied history
+```
+
+Content can carry metadata, for example a name and an id used for tracing.
+
+```python
+msg = HumanMessage(content="hello", name="Alice", id="msg-123")
+model.invoke([msg])
+
+# Output:
+# AIMessage("Hello Alice! How can I help you today?")   # name and id travel as metadata for tracing
+```
+
+Finally, a tool message carries the output of a tool call back to the model. An AI message can have empty text but make a tool call, and the matching tool message returns the result.
+
+```python
+from langchain.messages import AIMessage, ToolMessage
+
+# the AI message makes a tool call (empty text); the tool message returns its result
+ai = AIMessage(content="", tool_calls=[{"name": "get_weather", "args": {"location": "San Francisco"}, "id": "call_1"}])
+tool_result = ToolMessage(content="sunny, 18C", tool_call_id="call_1")
+model.invoke([HumanMessage("What's the weather in San Francisco?"), ai, tool_result])
+
+# Output:
+# AIMessage("The weather in San Francisco is sunny and 18C.")
+```
+
+A detailed system message yields a more specific answer than a generic one. Token usage for any response is on `response.usage_metadata`.
 
 ### Structured output
 
@@ -208,7 +307,69 @@ model_with_structure.invoke("Provide details about the movie Inception")
 # -> title='Inception', year=2010, rating=8.8
 ```
 
-The key Pydantic property is **field validation**: `title` must be a string, `year` an int, `rating` a float, otherwise it errors. With `create_agent`, the schema is passed via `response_format=` instead of `with_structured_output`.
+The key Pydantic property is **field validation**: `title` must be a string, `year` an int, `rating` a float, otherwise it errors.
+
+**Nested structures** let one schema contain another, for example a movie whose cast is a list of actor objects. Pydantic handles the nesting and validates every level.
+
+```python
+from pydantic import BaseModel, Field
+
+class Actor(BaseModel):
+    name: str = Field(description="the actor's name")
+    role: str = Field(description="the character played")
+
+class MovieDetails(BaseModel):
+    title: str = Field(description="the title of the movie")
+    director: str = Field(description="the director's name")
+    rating: float = Field(description="rating out of 10")
+    budget_million_usd: float = Field(default=None, description="budget in millions of USD")
+    cast: list[Actor] = Field(description="the main cast")          # nested: a list of Actor objects
+
+model_with_structure = model.with_structured_output(MovieDetails)
+model_with_structure.invoke("Provide details about the movie Inception")
+
+# Output:
+# MovieDetails(title='Inception', director='Christopher Nolan', rating=8.8,
+#              budget_million_usd=160.0,
+#              cast=[Actor(name='Leonardo DiCaprio', role='Cobb'), ...])
+```
+
+**TypedDict** is a lighter option with the same schema shape but no validation, so a wrong type slips through.
+
+```python
+from typing_extensions import TypedDict
+
+class MovieDict(TypedDict):
+    title: str
+    year: int
+    rating: float
+
+model.with_structured_output(MovieDict).invoke("Provide details about the movie Inception")
+
+# Output:
+# {'title': 'Inception', 'year': 2010, 'rating': 8.8}   # a plain dict, no validation
+```
+
+**Dataclass** behaves like TypedDict, a schema with no validation, using Python's built-in `@dataclass`.
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class MovieDC:
+    title: str
+    year: int
+    rating: float
+
+model.with_structured_output(MovieDC).invoke("Provide details about the movie Inception")
+
+# Output:
+# MovieDC(title='Inception', year=2010, rating=8.8)
+```
+
+A useful aside: on a base model you can inspect `model.profile` to see the model's capabilities, such as maximum input and output tokens, whether it supports image, audio, or video input, reasoning output, and tool calling.
+
+With `create_agent`, the schema is passed via `response_format=` instead of `with_structured_output`.
 
 ### Middleware
 
@@ -216,12 +377,27 @@ Middleware controls what happens inside an agent.
 
 **Middleware exposes hooks (trigger points) around an agent: before the agent, before the model, around tool calls, after the model, or after the agent.** A useful analogy is airport security, where a passenger passes a luggage check, then immigration, then a boarding-pass check before the gate, and each checkpoint is a middleware. Uses include logging, summarization, retries, fallbacks, rate limits, and guardrails.
 
+LangChain ships several **built-in middlewares** you can use directly:
+
+- **Summarization**: compresses conversation history when it approaches the token limit.
+- **Human-in-the-loop**: pauses execution for human approval of tool calls.
+- **Model call limits**: caps the number of model calls to prevent excessive cost.
+- **Tool call limits**: caps how many times tools can be called.
+- **Model fallback**: switches to a backup model if the primary fails.
+- **To-do list**: gives the agent a running task list.
+- **LLM tool selector**: uses an LLM to pick the right tool for a request.
+- **Tool retry**: retries a failed tool call.
+
+You can also write **custom middleware** by subclassing `AgentMiddleware` and implementing a hook such as `before_agent` or `after_agent` (a full custom hook is shown in the guardrails part).
+
 **Summarization middleware** compresses older conversation when it grows too large while keeping recent messages:
 
 ```python
 from langchain.agents.middleware import SummarizationMiddleware
 
 middleware=[SummarizationMiddleware(model="gpt-4o-mini", trigger={"messages": 10}, keep={"messages": 4})]
+
+# (no output; older messages are summarized once the count passes 10, keeping the last 4)
 ```
 
 When the count crosses 10, older messages collapse into a summary. Triggers can also be token-based (`{"tokens": 550}`, keep 200) or a fraction of the context window. A rough estimate of 4 characters per token means about 2200 characters is roughly 550 tokens.
@@ -232,7 +408,7 @@ When the count crosses 10, older messages collapse into a summary. Triggers can 
 
 ## Part 2: LangGraph
 
-LangGraph handles stateful, multi-step, and multi-agent workflows where agents may communicate.
+LangGraph handles stateful, multi-step, and multi-agent workflows where agents may communicate. It exposes two APIs for this: the **graph API**, used throughout these notes, and a **functional API** as an alternative; the graph API is the most straightforward to learn with.
 
 ### The three components: nodes, edges, state
 
@@ -257,6 +433,8 @@ from langgraph.graph.message import add_messages
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]   # list, appended via the reducer
+
+# (no output; defines the graph state, where messages is a list that gets appended to)
 ```
 
 `Annotated[list, add_messages]` says "this key is a list, and updates append to it," so every human and AI turn is kept.
@@ -275,6 +453,9 @@ graph_builder.add_edge(START, "llm_chatbot")
 graph_builder.add_edge("llm_chatbot", END)
 graph = graph_builder.compile()        # compilation is required before running
 graph.invoke({"messages": "hi"})
+
+# Output:
+# {'messages': [HumanMessage('hi'), AIMessage('Hello! How can I help you today?')]}
 ```
 
 Visualize with `graph.get_graph().draw_mermaid_png()`.
@@ -290,6 +471,9 @@ for chunk in graph.stream({"messages": "..."}, config, stream_mode="updates"):  
     ...
 for chunk in graph.stream({"messages": "..."}, config, stream_mode="values"):   # full conversation list
     ...
+
+# updates mode -> {'llm_chatbot': {'messages': [AIMessage('...')]}}   (only the new message)
+# values mode  -> {'messages': [HumanMessage('...'), AIMessage('...')]}  (the full conversation)
 ```
 
 `astream_events` gives detailed per-event debugging output.
@@ -313,6 +497,8 @@ builder.add_edge(START, "tool_calling_llm")
 builder.add_conditional_edges("tool_calling_llm", tools_condition)   # routes to tools OR end
 builder.add_edge("tools", END)
 graph = builder.compile()
+
+# (no output; builds a graph that routes to the tools node or ends, via tools_condition)
 ```
 
 **`tools_condition` is a built-in router: if the last AI message is a tool call it routes to the tools node, otherwise to end.** The tools node must be named `tools` for it to be found.
@@ -325,6 +511,8 @@ A graph that ends after one tool call cannot handle a two-part question. The fix
 
 ```python
 builder.add_edge("tools", "tool_calling_llm")   # instead of -> END
+
+# (no output; the tool result now loops back to the LLM instead of ending)
 ```
 
 Now "give me the recent AI news and then multiply 5 by 10" works: call web search, get the result, see the second clause, call `multiply`, get 50, and combine both. This loop is why agentic AI became powerful.
@@ -348,6 +536,9 @@ graph = builder.compile(checkpointer=memory)
 config = {"configurable": {"thread_id": "1"}}
 graph.invoke({"messages": "hi my name is Alex"}, config)
 graph.invoke({"messages": "what is my name?"}, config)   # remembers: Alex
+
+# Output:
+# what is my name?  ->  Your name is Alex.   (recalled via the checkpointer)
 ```
 
 `MemorySaver` is an in-memory store backed by a dictionary; the `thread_id` must be unique per user. (Memory types and optimisation are covered in the Memory section under the response pipeline.)
@@ -369,6 +560,9 @@ def human_assistance(query: str) -> str:
 
 # after the graph interrupts:
 graph.stream(Command(resume={"data": "expert recommendation..."}), config, stream_mode="values")
+
+# Output:
+# the graph pauses at the interrupt, then resumes once the human supplies a response
 ```
 
 ### MCP servers
@@ -392,6 +586,9 @@ client = MultiServerMCPClient({
 })
 tools = await client.get_tools()
 agent = create_react_agent(model, tools)
+
+# Output:
+# 3 + 5 * 12  ->  8 * 12 = 96
 ```
 
 A math server answering `3 + 5 * 12` returns `8 * 12 = 96`. Because the client is async, the whole thing runs under `asyncio.run(main())`.
@@ -448,6 +645,8 @@ Everything in ingestion ends up as a document object.
 ```python
 from langchain_core.documents import Document
 doc = Document(page_content="...main text...", metadata={"source": "example.txt", "author": "Jane Doe"})
+
+# -> Document(page_content='...main text...', metadata={'source': 'example.txt', 'author': 'Jane Doe'})
 ```
 
 **Loaders** read a file type and return content already wrapped as Documents: `TextLoader`, `PyPDFLoader`, `PyMuPDFLoader` (richer metadata), `CSVLoader`, plus directory and web-based loaders. Everything comes back as a list of Document objects regardless of loader.
@@ -462,6 +661,9 @@ Documents are split before embedding.
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 chunks = splitter.split_documents(all_documents)
+
+# Output:
+# 64 documents  ->  359 chunks   (with chunk_size=1000, chunk_overlap=200)
 ```
 
 **`chunk_overlap` is the number of characters shared between adjacent chunks**, which preserves context across the boundary. As a reference figure, 64 page-level documents split into 359 chunks at size 1000, overlap 200.
@@ -492,6 +694,9 @@ Chunks become vectors.
 from sentence_transformers import SentenceTransformer
 model = SentenceTransformer("all-MiniLM-L6-v2")     # 384-dimensional vectors
 embeddings = model.encode(texts, show_progress_bar=True)
+
+# Output:
+# embeddings.shape == (len(texts), 384)   # all-MiniLM-L6-v2 produces 384 dimensions
 ```
 
 `all-MiniLM-L6-v2` produces 384 dimensions, so every chunk becomes a vector of length 384.
@@ -520,6 +725,8 @@ import chromadb
 client = chromadb.PersistentClient(path="data/vector_store")
 collection = client.get_or_create_collection("pdf_documents")
 collection.add(ids=ids, embeddings=embedding_list, metadatas=metadatas, documents=document_texts)
+
+# (no output; stores each chunk as id + 384-dim embedding + metadata + text)
 ```
 
 Each record carries a UUID, the embedding, the metadata, and the page content.
@@ -550,6 +757,9 @@ def retrieve(self, query, top_k=3, score_threshold=0.0):
     results = self.vector_store.collection.query(query_embeddings=q_emb.tolist(), n_results=top_k)
     # keep results whose (1 - distance) is above the threshold
     return retrieved_docs
+
+# Output:
+# [{'content': '...', 'score': 0.75, 'metadata': {...}}, ...]   # distance 0.25 -> similarity 0.75
 ```
 
 ### LLM integration (augmentation and generation)
@@ -564,6 +774,9 @@ def rag_simple(query, retriever, llm, top_k=3):
         return "No relevant context found to answer the question."
     prompt = f"Use the following context to answer the question concisely.\n\nContext:\n{context}\n\nQuestion: {query}"
     return llm.invoke(prompt).content
+
+# Output (illustrative):
+# 'Based on the context, the return window is 30 days.'   (or 'No relevant context found...')
 ```
 
 An enhanced version also returns sources, a confidence score (the similarity), and the full context; a further version adds streaming, citations, history, and summarization.
@@ -663,6 +876,9 @@ graph = builder.compile(checkpointer=MemorySaver())
 config = {"configurable": {"thread_id": "user-123"}}
 graph.invoke({"messages": "hi my name is Alex"}, config)
 graph.invoke({"messages": "what is my name?"}, config)   # remembers
+
+# Output:
+# what is my name?  ->  Alex   (remembered across turns via the checkpointer)
 ```
 
 To **optimise** memory and stop the context from blowing up: apply summarization middleware to compress older turns, use a windowed buffer that keeps only the most recent N messages, switch to vector-store-backed memory so only relevant history is retrieved, and trigger summarization on a token or message threshold (for example summarize once the conversation passes 10 messages or 550 tokens, keeping the most recent few). The goal is to retain enough context for good answers without paying to resend the entire history every turn.
@@ -711,6 +927,10 @@ agent = create_deep_agent(tools=[web_search], system_prompt="Act as a researcher
 result = agent.invoke({"messages": [{"role": "user", "content": "what is a deep agent"}]})
 print(result["messages"][-1].content)
 print(result["files"])   # files the agent created to preserve context
+
+# Output:
+# result['messages'][-1].content -> an explanation of what a deep agent is
+# result['files']            -> {'research_notes.md': '...'}   # files the agent created to keep context
 ```
 
 The difference from a plain agent shows in the compiled graph: a deep agent comes with extra middleware hooks (a path-to-tool-calls hook, a summarization hook, and an automatic to-do list after the model) that a plain agent lacks.
@@ -771,6 +991,9 @@ from pageindex import PageIndexClient
 pi = PageIndexClient(api_key=PAGEINDEX_API_KEY)
 doc = pi.submit_document(pdf_path)                 # uploads and builds the tree (50 pages ~ 30 to 90s)
 tree = pi.get_tree(doc_id, node_summary=True)      # JSON tree with node summaries
+
+# Output:
+# tree -> a JSON hierarchy of sections, each node holding a summary (a 50-page doc takes ~30-90s to build)
 ```
 
 ### When there is no table of contents
@@ -805,6 +1028,10 @@ Guardrails are safety mechanisms that control what goes into and comes out of an
 def deterministic_guardrail(text):                 # zero LLM cost
     banned = ["hack", "exploit", "malware", "bomb"]
     return any(b in text.lower() for b in banned)  # True means blocked
+
+# Output:
+# deterministic_guardrail('explain how malware spreads') -> True   (blocked on the keyword)
+# an LLM-based guardrail would allow the same request as educational
 ```
 
 The example "explain how malware spreads" is blocked by the deterministic keyword match but judged safe by an LLM, which reads it as a generic educational question.
@@ -821,6 +1048,8 @@ middleware=[
     PIIMiddleware("credit_card", strategy="mask", apply_to_input=True),
     PIIMiddleware("api_key", detector=r"sk-[a-zA-Z0-9]{32}", strategy="block", apply_to_input=True),
 ]
+
+# (no output; redacts emails, masks credit cards, and blocks messages containing an api key)
 ```
 
 `block` raises an exception, so calls using it are wrapped in try/except.
@@ -832,6 +1061,8 @@ The human-approval pattern as a guardrail for high-impact tools:
 ```python
 from langchain.agents.middleware import HumanInLoopMiddleware
 middleware=[HumanInLoopMiddleware(interrupt_on={"send_email": True, "delete_records": True, "search_web": False})]
+
+# (no output; send_email and delete_records pause for approval; search_web is auto-approved)
 ```
 
 Reading the web is auto-approved; sending email and deleting records require approval.
@@ -868,6 +1099,8 @@ client.create_examples(dataset_id=dataset.id, examples=[
     {"inputs": {"question": "What is LangChain?"},
      "outputs": {"answer": "A framework for building LLM applications"}},
 ])
+
+# (no output; creates the 'chatbot_evaluation' dataset with example question and answer pairs)
 ```
 
 Environment needs `LANGSMITH_API_KEY` and `LANGSMITH_TRACING=true`.
@@ -926,6 +1159,9 @@ completion(
     fallbacks=["gpt-4o-mini", "groq/llama-3.3-70b-versatile"],
     messages=[{"role": "user", "content": "..."}],
 )   # answer comes back from the first working fallback
+
+# Output:
+# the answer from the first model that succeeds (the primary, or a fallback if it fails)
 ```
 
 ### Cost tracking and caching
@@ -937,6 +1173,9 @@ import litellm
 from litellm.caching import Cache
 litellm.cache = Cache(type="local")
 completion(model="gpt-4o-mini", messages=[{"role": "user", "content": "What does LLM stand for?"}], caching=True)
+
+# Output:
+# first call ~1.45 s;  cached call ~0.0021 s   (about 690x faster, and $0 on the cache hit)
 ```
 
 ### Smart routing and load balancing
@@ -955,6 +1194,8 @@ robust_llm = ChatLiteLLM(model="gpt-x").with_fallbacks([
     ChatLiteLLM(model="gpt-4o-mini"),
     ChatLiteLLM(model="groq/llama-3.3-70b-versatile"),
 ])
+
+# (no output; robust_llm now automatically falls back through the listed models)
 ```
 
 ### Guardrails in the gateway
@@ -964,6 +1205,8 @@ robust_llm = ChatLiteLLM(model="gpt-x").with_fallbacks([
 ```python
 import litellm
 litellm.input_callback = [pii_input_guardrail]   # redacts then passes the cleaned prompt onward
+
+# (no output; PII in the prompt is redacted before the model ever sees it)
 ```
 
 ---
