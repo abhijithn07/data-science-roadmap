@@ -128,6 +128,16 @@ python -m streamlit run app.py
 The app opens at `http://localhost:8501`. If you ever see "Database not found," it means
 Step 1 has not been run in this environment yet.
 
+**Step 3 (optional): train the Phase 2 model and enable the AI assistant**
+
+- Run `notebooks/NutriTrack_Phase2_ML.ipynb` end to end. It writes `models/diabetes_model.pkl`
+  and `models/scaler.pkl`, which power the **Diabetes Risk Assessment** page.
+- For the **AI Nutrition Assistant** page, get a free Groq key at
+  https://console.groq.com/keys, copy `.streamlit/secrets.toml.example` to
+  `.streamlit/secrets.toml`, and paste your key (or set the `GROQ_API_KEY` environment
+  variable, or paste the key in the page's settings). Without a key the page still works in
+  retrieval-only mode. See `notebooks/NutriTrack_Phase3_RAG.ipynb` for the walkthrough.
+
 > Tip: On Windows, prefer `python -m streamlit ...` and `python -m jupyter ...`. Running the
 > bare `streamlit` or `jupyter` command can fail if the Scripts folder is not on your PATH.
 
@@ -162,9 +172,14 @@ Key descriptive findings (associations, not causation):
 ## Roadmap
 
 - **Phase 1 (complete):** data pipeline, EDA, and Streamlit application.
-- **Phase 2 (planned):** diabetes-prediction model on the cleaned NHANES table, using a
-  train/test split, cross-validation, and imbalance-aware metrics (precision, recall, ROC-AUC).
-- **Phase 3 (planned):** a retrieval-augmented generative-AI nutrition assistant.
+- **Phase 2 (complete):** diabetes-risk model on the cleaned NHANES table. A tuned Random
+  Forest predicts a three-class risk (Low/Medium/High) from ten non-glucose lifestyle features,
+  evaluated with imbalance-aware metrics (weighted/macro F1). Wired into the app as the
+  **Diabetes Risk Assessment** page. See `notebooks/NutriTrack_Phase2_ML.ipynb`.
+- **Phase 3 (complete):** a retrieval-augmented (RAG) nutrition assistant. Facts are built from
+  the same database, retrieved with TF-IDF, and answered by a Groq-hosted model with strict
+  grounding, citations, and a medical disclaimer. Wired into the app as the **AI Nutrition
+  Assistant** page. See `rag.py` and `notebooks/NutriTrack_Phase3_RAG.ipynb`.
 
 ---
 

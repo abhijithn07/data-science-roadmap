@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+import rag  # Phase 3 RAG assistant engine
+
 DB_PATH = Path(__file__).parent / "database" / "nutritrack.db"
 NUTRIENTS = ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"]
 
@@ -17,6 +19,13 @@ NUTRIENT_COLOR = {
     "calories": "#1f2d28", "protein": "#0f6e5c", "carbs": "#e8833a", "fat": "#e0567a",
     "fiber": "#3a9d7a", "sugar": "#c45bbd", "sodium": "#5a7fa8",
 }
+
+# ---- Phase 2: diabetes risk model ----
+MODELS_DIR = Path(__file__).parent / "models"
+RISK_FEATURES = ["age", "gender_male", "bmi", "physical_activity", "diet_calories",
+                 "diet_protein", "diet_carbs", "diet_fat", "diet_fiber", "diet_sugar"]
+RISK_CLASSES = ["Low", "Medium", "High"]
+RISK_COLORS = {"Low": "#3a9d7a", "Medium": "#e8833a", "High": "#e0567a"}
 
 st.set_page_config(page_title="NutriTrack", page_icon="🥗", layout="wide")
 
@@ -37,6 +46,7 @@ def apply_theme():
         h1,h2,h3,h4{ font-family:'Sora',sans-serif !important; letter-spacing:-.02em; font-weight:700; }
         section[data-testid="stSidebar"]{ background:linear-gradient(180deg,var(--brand-d),var(--brand)); }
         section[data-testid="stSidebar"] *{ color:#eaf3f0 !important; }
+        section[data-testid="stSidebar"] [role="radiogroup"] label p{ font-size:1.1rem !important; }
         section[data-testid="stSidebar"] h1{ color:#ffffff !important; font-size:1.45rem; }
         .nt-hero{
           background:linear-gradient(120deg,var(--brand),#13836e); color:#fff;
@@ -59,6 +69,13 @@ def apply_theme():
         }
         .stButton>button:hover, .stForm button:hover{ background:var(--accent); }
         .nt-eyebrow{ font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:2px; }
+        /* Keep Streamlit's icon glyphs (sidebar arrow, chat avatars) rendering as
+           icons, not as the raw ligature text, despite the global Inter override. */
+        span[data-testid="stIconMaterial"], [data-testid="stIconMaterial"],
+        .material-icons, .material-icons-outlined,
+        .material-symbols-outlined, .material-symbols-rounded{
+          font-family:'Material Symbols Outlined','Material Symbols Rounded','Material Icons' !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -329,8 +346,175 @@ def page_calculator():
     st.dataframe(meals[["meal_type", "food_name", "grams"] + NUTRIENTS], width="stretch", hide_index=True)
 
 
+@st.cache_resource
+def load_risk_model():
+    import joblib
+    model_path = MODELS_DIR / "diabetes_model.pkl"
+    scaler_path = MODELS_DIR / "scaler.pkl"
+    if not model_path.exists() or not scaler_path.exists():
+        return None, None
+    return joblib.load(model_path), joblib.load(scaler_path)
+
+
+def page_risk_assessment():
+    hero("Diabetes Risk Assessment",
+         "Estimate diabetes risk from lifestyle and diet using the Phase 2 model.")
+    model, scaler = load_risk_model()
+    if model is None:
+        st.warning("Model not found. Run notebooks/NutriTrack_Phase2_ML.ipynb to train and "
+                   "save the model, then reload this page.")
+        return
+    c1, c2, c3 = st.columns(3)
+    age = c1.number_input("Age", 18, 100, 45)
+    gender = c2.selectbox("Gender", ["Female", "Male"])
+    activity = c3.number_input("Physical activity (weekly minutes)", 0, 5000, 150)
+    height = c1.number_input("Height (cm)", 120.0, 220.0, 170.0)
+    weight = c2.number_input("Weight (kg)", 30.0, 250.0, 75.0)
+    bmi = weight / ((height / 100) ** 2)
+    c3.metric("BMI", f"{bmi:.1f}")
+    st.markdown("<div class='nt-eyebrow'>Daily dietary intake</div>", unsafe_allow_html=True)
+    d1, d2, d3 = st.columns(3)
+    calories = d1.number_input("Calories (kcal)", 0.0, 6000.0, 2000.0)
+    protein = d2.number_input("Protein (g)", 0.0, 400.0, 75.0)
+    carbs = d3.number_input("Carbohydrates (g)", 0.0, 800.0, 250.0)
+    fat = d1.number_input("Fat (g)", 0.0, 400.0, 70.0)
+    fiber = d2.number_input("Fiber (g)", 0.0, 150.0, 25.0)
+    sugar = d3.number_input("Sugar (g)", 0.0, 500.0, 90.0)
+    if st.button("Assess risk"):
+        row = pd.DataFrame(
+            [[age, 1 if gender == "Male" else 0, bmi, activity, calories,
+              protein, carbs, fat, fiber, sugar]],
+            columns=RISK_FEATURES)
+        proba = model.predict_proba(scaler.transform(row))[0]
+        idx = int(proba.argmax())
+        risk = RISK_CLASSES[idx]
+        confidence = proba[idx] * 100
+        st.markdown(
+            f"<div class='nt-tile' style='border-top-color:{RISK_COLORS[risk]}'>"
+            f"<div class='k'>Predicted risk</div><div class='v'>{risk} risk</div></div>",
+            unsafe_allow_html=True)
+        st.metric("Confidence", f"{confidence:.0f}%")
+        reasons = []
+        if bmi >= 30:
+            reasons.append("a BMI in the obese range")
+        elif bmi >= 25:
+            reasons.append("a BMI in the overweight range")
+        if age >= 45:
+            reasons.append("age above 45")
+        if activity < 75:
+            reasons.append("low physical activity")
+        if fiber < 15:
+            reasons.append("low fiber intake")
+        explanation = ("Key contributing factors: " + ", ".join(reasons) + ".") if reasons \
+            else "No single factor stands out; the estimate reflects the overall profile."
+        st.write(explanation)
+        figp = px.bar(x=RISK_CLASSES, y=proba * 100, color=RISK_CLASSES,
+                      color_discrete_map=RISK_COLORS, title="Risk probabilities",
+                      labels={"x": "Risk category", "y": "Probability (%)"})
+        figp.update_layout(showlegend=False)
+        st.plotly_chart(style_fig(figp, 300), width="stretch")
+        st.info("This prediction is for educational purposes only and is not a medical diagnosis.")
+
+
+@st.cache_resource
+def load_rag_engine():
+    corpus = rag.build_corpus(DB_PATH)
+    return rag.Retriever(corpus), len(corpus)
+
+
+def render_meal_calculation(calc):
+    """Show the exact per-item and total nutrition computed by the Python tool."""
+    rows = []
+    for it in calc["items"]:
+        rows.append({
+            "Ingredient": it["input"], "Matched USDA food": it["matched"],
+            "Grams": it["grams"], "Calories": it["calories"], "Protein (g)": it["protein"],
+            "Carbs (g)": it["carbs"], "Fat (g)": it["fat"], "Fiber (g)": it["fiber"],
+            "Sugar (g)": it["sugar"],
+        })
+    st.markdown("<div class='nt-eyebrow'>Calculated from USDA data</div>", unsafe_allow_html=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+    t = calc["totals"]
+    stat_tiles([
+        ("Total calories", f"{t['calories']:,.0f} kcal"),
+        ("Protein", f"{t['protein']:,.1f} g"),
+        ("Carbs", f"{t['carbs']:,.1f} g"),
+        ("Fat", f"{t['fat']:,.1f} g"),
+    ])
+    if calc["not_found"]:
+        st.caption("Not in the USDA foundation foods, so left out of the totals: "
+                   + ", ".join(calc["not_found"]) + ".")
+
+
+def page_ai_assistant():
+    hero("AI Nutrition Assistant",
+         "Ask about foods or diabetes risk. Answers are grounded in the NutriTrack data (RAG).")
+    retriever, corpus_size = load_rag_engine()
+
+    api_key = rag.get_api_key()
+    with st.expander("Assistant settings", expanded=api_key is None):
+        st.caption(f"Knowledge base: {corpus_size} facts from the USDA and NHANES tables. "
+                   "The assistant answers only from these facts.")
+        if api_key is None:
+            st.info("No Groq API key found. Paste one below for full answers, or ask anyway "
+                    "to see retrieval-only results. Get a free key at console.groq.com.")
+            typed = st.text_input("Groq API key", type="password", key="groq_key_input")
+            if typed:
+                api_key = typed
+        model = st.selectbox("Model", [rag.DEFAULT_MODEL, "openai/gpt-oss-120b",
+                                       "llama-3.3-70b-versatile"], index=0)
+
+    if "ai_messages" not in st.session_state:
+        st.session_state.ai_messages = [{
+            "role": "assistant",
+            "content": (
+                "Hi, I'm the NutriTrack Assistant. I can look up nutrition for foods in "
+                "the USDA catalog and explain how factors like BMI, age, and diet relate "
+                "to diabetes in the NHANES data.\n\n"
+                "I answer from the NutriTrack data where I can, and give general nutrition "
+                "guidance otherwise. I don't diagnose, so please see a professional for "
+                "personal health concerns."
+            ),
+        }]
+
+    for msg in st.session_state.ai_messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    question = st.chat_input("Ask about a food or a diabetes risk factor")
+    if question:
+        st.session_state.ai_messages.append({"role": "user", "content": question})
+        with st.chat_message("user"):
+            st.markdown(question)
+        contexts = retriever.retrieve(question, k=4)
+        with st.chat_message("assistant"):
+            calculation = None
+            if api_key:
+                try:
+                    with st.spinner("Thinking..."):
+                        result = rag.answer(question, contexts, api_key, model, DB_PATH)
+                    answer = result["text"]
+                    calculation = result["calculation"]
+                except Exception as exc:  # network, bad key, or deprecated model
+                    answer = (f"Could not reach the Groq model ({exc}). Showing retrieved "
+                              f"facts instead:\n\n" + rag.retrieval_only_answer(contexts))
+            else:
+                answer = rag.retrieval_only_answer(contexts)
+            st.markdown(answer)
+            if calculation and calculation.get("items"):
+                render_meal_calculation(calculation)
+            if contexts:
+                with st.expander("Sources used"):
+                    for i, c in enumerate(contexts, 1):
+                        st.markdown(f"**[{i}] {c['source']}** (match {c['score']:.2f})  \n{c['text']}")
+        st.session_state.ai_messages.append({"role": "assistant", "content": answer})
+    st.info("Educational use only. NutriTrack does not diagnose diabetes or replace medical care.")
+
+
 PAGES = {"Home": page_home, "User Profile": page_profile, "Food Search": page_food_search,
          "Meal Logger": page_meal_logger, "Nutrition Dashboard": page_dashboard,
-         "Daily Nutrition Calculator": page_calculator}
+         "Daily Nutrition Calculator": page_calculator,
+         "Diabetes Risk Assessment": page_risk_assessment,
+         "AI Nutrition Assistant": page_ai_assistant}
 st.sidebar.title("🥗 NutriTrack")
 PAGES[st.sidebar.radio("Menu", list(PAGES))]()

@@ -22,3 +22,10 @@ data/processed/*.csv
 Thumbs.db
 .vscode/
 .idea/
+
+# ---- Secrets ----
+.streamlit/secrets.toml
+
+
+mlflow.db
+mlruns/
